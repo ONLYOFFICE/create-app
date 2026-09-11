@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import {
   useCallback,
   useRef,
@@ -25,6 +24,8 @@ type Notice = { kind: 'error' | 'info'; text: string };
 
 // A fixed locale keeps the server-rendered HTML identical to the client render (hydration).
 const sizeFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+
+const editorUrl = (fileName: string) => `/editor/${encodeURIComponent(fileName)}`;
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -58,7 +59,6 @@ async function readError(response: Response): Promise<string> {
 }
 
 export function FileManager({ initialFiles, initialWarning, accept }: Props) {
-  const router = useRouter();
   const [files, setFiles] = useState(initialFiles);
   const [warning, setWarning] = useState(initialWarning);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -133,16 +133,27 @@ export function FileManager({ initialFiles, initialWarning, accept }: Props) {
   };
 
   const create = (type: TemplateType, name: string) => {
+    // Open the tab synchronously (inside the click handler) so pop-up blockers allow it,
+    // then point it at the editor once the file exists.
+    const editorTab = window.open('', '_blank');
     void run(async () => {
-      const response = await fetch('/api/files/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, name }),
-      });
-      if (!response.ok) throw new Error(await readError(response));
-      const data = (await response.json()) as { file: { name: string } };
-      setCreateOpen(false);
-      router.push(`/editor/${encodeURIComponent(data.file.name)}`);
+      try {
+        const response = await fetch('/api/files/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, name }),
+        });
+        if (!response.ok) throw new Error(await readError(response));
+        const data = (await response.json()) as { file: { name: string } };
+        setCreateOpen(false);
+        const url = editorUrl(data.file.name);
+        if (editorTab) editorTab.location.href = url;
+        else window.open(url, '_blank');
+        await refresh();
+      } catch (error) {
+        editorTab?.close();
+        throw error;
+      }
     });
   };
 
@@ -267,7 +278,7 @@ function FileRow({
 }) {
   const encoded = encodeURIComponent(file.name);
   const canOpen = file.mode !== null;
-  const editorHref = `/editor/${encoded}`;
+  const editorHref = editorUrl(file.name);
 
   return (
     <tr>
@@ -275,7 +286,13 @@ function FileRow({
         <div className={styles.nameCell}>
           <FormatIcon type={file.documentType} />
           {canOpen ? (
-            <a href={editorHref} className={styles.fileName} title={`Open ${file.name}`}>
+            <a
+              href={editorHref}
+              target="_blank"
+              rel="noopener"
+              className={styles.fileName}
+              title={`Open ${file.name} in a new tab`}
+            >
               {file.name}
             </a>
           ) : (
@@ -305,7 +322,7 @@ function FileRow({
       <td>
         <div className={styles.actions}>
           {canOpen ? (
-            <a href={editorHref} className="btn btn-sm">
+            <a href={editorHref} target="_blank" rel="noopener" className="btn btn-sm">
               {file.mode === 'edit' ? 'Edit' : 'View'}
             </a>
           ) : null}

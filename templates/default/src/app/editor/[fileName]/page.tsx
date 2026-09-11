@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Editor } from '@/components/Editor';
 import { ErrorBanner } from '@/components/ErrorBanner';
@@ -43,17 +42,11 @@ export default async function EditorPage({ params }: Props) {
     throw error;
   }
 
+  // The editor opens in its own tab and takes the whole viewport; the editor's own header
+  // shows the file name, and its "back" button (customization.goback) returns to the file list.
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link href="/" className="btn btn-sm">
-          ← Back to files
-        </Link>
-        <span className={styles.fileName}>{name}</span>
-      </header>
-      <div className={styles.editor}>
-        <Editor fileName={name} />
-      </div>
+      <Editor fileName={name} />
     </main>
   );
 }

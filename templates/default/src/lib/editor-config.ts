@@ -89,7 +89,8 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
         forcesave: false,
         compactHeader: false,
         feedback: false,
-        goback: { url: `${baseUrl}/`, text: 'Back to files' },
+        // The editor lives in its own tab: "back" navigates that tab to the file list.
+        goback: { url: `${baseUrl}/`, text: 'Back to files', blank: false },
       },
     },
   };
