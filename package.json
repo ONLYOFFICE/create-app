@@ -1,0 +1,63 @@
+{
+  "name": "@onlyoffice/create-docs-integration",
+  "version": "0.1.0",
+  "description": "Scaffold a demo application that integrates ONLYOFFICE Docs (Document Server) with Next.js",
+  "keywords": [
+    "onlyoffice",
+    "document-server",
+    "docs",
+    "integration",
+    "create",
+    "scaffold",
+    "nextjs",
+    "office",
+    "docx",
+    "xlsx",
+    "pptx",
+    "pdf"
+  ],
+  "license": "Apache-2.0",
+  "author": "Ascensio System SIA",
+  "homepage": "https://github.com/ONLYOFFICE/create-docs-integration#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ONLYOFFICE/create-docs-integration.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ONLYOFFICE/create-docs-integration/issues"
+  },
+  "type": "module",
+  "bin": {
+    "create-docs-integration": "bin/create-docs-integration.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "sync-templates": "node scripts/sync-document-templates.js",
+    "prepack": "npm run sync-templates",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "npm run sync-templates && node scripts/smoke-test.js",
+    "template:install": "npm --prefix templates/default install",
+    "template:dev": "npm --prefix templates/default run dev",
+    "template:build": "npm --prefix templates/default run build"
+  },
+  "dependencies": {
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.6"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

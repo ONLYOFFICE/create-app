@@ -1,0 +1,34 @@
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-muted);
+}
+
+.padded {
+  padding: 12px 14px 0;
+}
+
+.hints {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hints ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.frame {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.frame > div,
+.frame iframe {
+  height: 100% !important;
+}

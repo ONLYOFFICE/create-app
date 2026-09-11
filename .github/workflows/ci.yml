@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  cli:
+    name: CLI lint & smoke test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm pack --dry-run
+
+  template:
+    name: Template app build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run sync-templates
+      - run: npm install
+        working-directory: templates/default
+      - run: npm run lint
+        working-directory: templates/default
+      - run: npm run typecheck
+        working-directory: templates/default
+      - run: npm run build
+        working-directory: templates/default
+        env:
+          DOCUMENT_SERVER_URL: http://documentserver.example/
