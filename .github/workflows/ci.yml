@@ -3,7 +3,21 @@ name: CI
 on:
   push:
     branches: [master, develop]
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+      - '.gitattributes'
+      - '.editorconfig'
+      - '.github/workflows/create-tag.yml'
+      - '.github/workflows/release.yml'
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+      - '.gitattributes'
+      - '.editorconfig'
+      - '.github/workflows/create-tag.yml'
+      - '.github/workflows/release.yml'
 
 jobs:
   cli:
