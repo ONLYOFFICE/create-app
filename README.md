@@ -1,7 +1,7 @@
 # @onlyoffice/create-app
 
 Scaffold a demo application that integrates the [ONLYOFFICE Docs](https://www.onlyoffice.com/office-suite.aspx)
-editors, the same way `create-docusaurus` or `create-next-app` scaffold a site:
+editors, the same way `create-next-app` scaffold a site:
 
 ```bash
 npx @onlyoffice/create-app my-app
