@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          # The prepack hook copies blank documents from the
+          # vendor/document-templates submodule into the package.
+          submodules: true
+      - name: Install NodeJS
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org/'
+          # Disable automatic dependency caching to reduce cache poisoning risk
+          package-manager-cache: false
+      - name: Install dependencies
+        run: npm ci
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+      - name: Get Info
+        run: |
+          echo "version=$(grep -Eo '[0-9]+(\.[0-9]+)+' CHANGELOG.md | head -n 1)" >> $GITHUB_OUTPUT
+        id: info
+      - name: Generate Changelog
+        run: |
+          awk '/^## [0-9]/{p++; next} p==1' CHANGELOG.md > RELEASE.md
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        id: create_release
+        with:
+          bodyFile: RELEASE.md
+          tag: v${{ steps.info.outputs.version }}
