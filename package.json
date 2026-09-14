@@ -2,6 +2,20 @@
   "name": "@onlyoffice/create-app",
   "version": "0.1.0",
   "description": "Scaffold a demo application that integrates ONLYOFFICE Docs (Document Server) with Next.js",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ONLYOFFICE/create-app/issues",
+    "email": "support@onlyoffice.com"
+  },
+  "homepage": "https://github.com/ONLYOFFICE/create-app#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ONLYOFFICE/create-app.git"
+  },
+  "author": "Ascensio System SIA",
+  "maintainers": [
+    "Ascensio System SIA <integration@onlyoffice.com> (https://www.onlyoffice.com)"
+  ],
   "keywords": [
     "onlyoffice",
     "document-server",
@@ -16,28 +30,6 @@
     "pptx",
     "pdf"
   ],
-  "license": "Apache-2.0",
-  "author": "Ascensio System SIA",
-  "homepage": "https://github.com/ONLYOFFICE/create-app#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ONLYOFFICE/create-app.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ONLYOFFICE/create-app/issues"
-  },
-  "type": "module",
-  "bin": {
-    "create-app": "bin/create-app.js"
-  },
-  "files": [
-    "bin",
-    "src",
-    "templates"
-  ],
-  "engines": {
-    "node": ">=20.12"
-  },
   "scripts": {
     "sync-templates": "node scripts/sync-document-templates.js",
     "prepack": "npm run sync-templates",
@@ -60,5 +52,17 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "bin": {
+    "create-app": "bin/create-app.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=20.12"
+  },
+  "type": "module"
 }
