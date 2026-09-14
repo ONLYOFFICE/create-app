@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+      - '.gitattributes'
+      - '.editorconfig'
+      - '.github/workflows/create-tag.yml'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/licenses.yml'
+      - '.check-licenses.yml'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**/LICENSE'
+      - '.gitattributes'
+      - '.editorconfig'
+      - '.github/workflows/create-tag.yml'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/licenses.yml'
+      - '.check-licenses.yml'
+
+jobs:
+  cli:
+    name: CLI lint & smoke test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm pack --dry-run
+
+  template:
+    name: Template app build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm run sync-templates
+      - run: npm install
+        working-directory: templates/default
+      - run: npm run lint
+        working-directory: templates/default
+      - run: npm run typecheck
+        working-directory: templates/default
+      - run: npm run build
+        working-directory: templates/default
+        env:
+          DOCUMENT_SERVER_URL: http://documentserver.example/
