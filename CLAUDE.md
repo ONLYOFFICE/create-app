@@ -54,6 +54,10 @@ CI (`.github/workflows/ci.yml`) runs root lint + smoke test on Ubuntu and Window
 typechecks and builds the template app. Keep the CLI Windows-compatible (see `shell: win32` in
 `src/install.js` and POSIX-normalised paths in `src/scaffold.js`).
 
+`.github/workflows/licenses.yml` runs `ONLYOFFICE/check-licenses` (LicenseFinder) against both
+`package.json`s (root and `templates/default`). Repo-specific approvals live in `.check-licenses.yml`
+at the root; the template package itself is approved there because it declares no license.
+
 ## CLI architecture (`src/`)
 
 - `cli.js` — `parseArgs` options, interactive `prompts` for the project name, orchestrates

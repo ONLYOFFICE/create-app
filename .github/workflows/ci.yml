@@ -10,6 +10,8 @@ on:
       - '.editorconfig'
       - '.github/workflows/create-tag.yml'
       - '.github/workflows/release.yml'
+      - '.github/workflows/licenses.yml'
+      - '.check-licenses.yml'
   pull_request:
     paths-ignore:
       - '**.md'
@@ -18,6 +20,8 @@ on:
       - '.editorconfig'
       - '.github/workflows/create-tag.yml'
       - '.github/workflows/release.yml'
+      - '.github/workflows/licenses.yml'
+      - '.check-licenses.yml'
 
 jobs:
   cli:

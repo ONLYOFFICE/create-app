@@ -1,0 +1,8 @@
+---
+- - :approve
+  - docs-integration-demo
+  - :who:
+    :why: The template app itself (templates/default); scaffold rewrites its package.json
+      for the user's project, so it declares no license
+    :versions: []
+    :when: 2026-09-14 10:36:10.313192600 Z
