@@ -43,7 +43,7 @@ Equivalent invocations: `npm init @onlyoffice/app my-app`,
 
 ## Requirements
 
-- Node.js 20.11 or newer.
+- Node.js 20.12 or newer.
 - An ONLYOFFICE Docs (Document Server) 8.2 or newer that can reach the machine where the demo runs.
   The quickest way is Docker:
   `docker run -i -t -d -p 8080:80 -e JWT_SECRET=my_jwt_secret onlyoffice/documentserver`

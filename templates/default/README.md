@@ -12,7 +12,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
 ## Requirements
 
-- Node.js 20.11 or newer;
+- Node.js 20.12 or newer;
 - a running ONLYOFFICE Docs (Document Server) 8.2 or newer, for example
   [in Docker](https://helpcenter.onlyoffice.com/installation/docs-community-install-docker.aspx):
 

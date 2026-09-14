@@ -36,7 +36,7 @@
     "templates"
   ],
   "engines": {
-    "node": ">=20.11"
+    "node": ">=20.12"
   },
   "scripts": {
     "sync-templates": "node scripts/sync-document-templates.js",
