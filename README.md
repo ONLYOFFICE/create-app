@@ -1,10 +1,10 @@
-# @onlyoffice/create-docs-integration
+# @onlyoffice/create-app
 
 Scaffold a demo application that integrates the [ONLYOFFICE Docs](https://www.onlyoffice.com/office-suite.aspx)
 editors, the same way `create-docusaurus` or `create-next-app` scaffold a site:
 
 ```bash
-npx @onlyoffice/create-docs-integration my-app
+npx @onlyoffice/create-app my-app
 cd my-app
 # edit .env: DOCUMENT_SERVER_URL, DOCUMENT_SERVER_JWT_SECRET, APP_URL
 npm start
@@ -26,7 +26,7 @@ See the generated project's `README.md` for the full list and a walkthrough of t
 ## Usage
 
 ```
-npx @onlyoffice/create-docs-integration [project-directory] [options]
+npx @onlyoffice/create-app [project-directory] [options]
 
 Options:
   --skip-install     do not install dependencies
@@ -38,8 +38,8 @@ Options:
   -h, --help         show help
 ```
 
-Equivalent invocations: `npm init @onlyoffice/docs-integration my-app`,
-`pnpm create @onlyoffice/docs-integration my-app`, `yarn create @onlyoffice/docs-integration my-app`.
+Equivalent invocations: `npm init @onlyoffice/app my-app`,
+`pnpm create @onlyoffice/app my-app`, `yarn create @onlyoffice/app my-app`.
 
 ## Requirements
 
@@ -51,7 +51,7 @@ Equivalent invocations: `npm init @onlyoffice/docs-integration my-app`,
 ## Repository layout
 
 ```
-bin/create-docs-integration.js    CLI entry point
+bin/create-app.js                 CLI entry point
 src/                              CLI implementation (plain ESM JavaScript, no build step)
 templates/default/                the demo application (a complete Next.js project)
 templates/default/document-templates/   generated: blank documents for every locale
@@ -63,8 +63,8 @@ scripts/smoke-test.js             runs the CLI into a temp dir and checks the re
 ## Development
 
 ```bash
-git clone --recurse-submodules https://github.com/ONLYOFFICE/create-docs-integration.git
-cd create-docs-integration
+git clone --recurse-submodules https://github.com/ONLYOFFICE/create-app.git
+cd create-app
 npm install
 npm run sync-templates          # copies blank documents from the submodule into the template
 npm test                        # smoke test of the CLI
@@ -87,7 +87,7 @@ To try the CLI end to end from a tarball:
 
 ```bash
 npm pack                        # runs prepack → sync-templates
-npx ./onlyoffice-create-docs-integration-*.tgz my-app
+npx ./onlyoffice-create-app-*.tgz my-app
 ```
 
 ### Updating the blank templates

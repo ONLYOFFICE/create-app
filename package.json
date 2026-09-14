@@ -1,5 +1,5 @@
 {
-  "name": "@onlyoffice/create-docs-integration",
+  "name": "@onlyoffice/create-app",
   "version": "0.1.0",
   "description": "Scaffold a demo application that integrates ONLYOFFICE Docs (Document Server) with Next.js",
   "keywords": [
@@ -18,17 +18,17 @@
   ],
   "license": "Apache-2.0",
   "author": "Ascensio System SIA",
-  "homepage": "https://github.com/ONLYOFFICE/create-docs-integration#readme",
+  "homepage": "https://github.com/ONLYOFFICE/create-app#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ONLYOFFICE/create-docs-integration.git"
+    "url": "git+https://github.com/ONLYOFFICE/create-app.git"
   },
   "bugs": {
-    "url": "https://github.com/ONLYOFFICE/create-docs-integration/issues"
+    "url": "https://github.com/ONLYOFFICE/create-app/issues"
   },
   "type": "module",
   "bin": {
-    "create-docs-integration": "bin/create-docs-integration.js"
+    "create-app": "bin/create-app.js"
   },
   "files": [
     "bin",

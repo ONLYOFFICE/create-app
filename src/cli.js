@@ -8,7 +8,7 @@ import { log } from './log.js';
 import { assertTargetDir, scaffold, toPackageName } from './scaffold.js';
 
 const HELP = `
-Usage: npx @onlyoffice/create-docs-integration [project-directory] [options]
+Usage: npx @onlyoffice/create-app [project-directory] [options]
 
 Creates a demo application that integrates ONLYOFFICE Docs (Document Server):
 a small file manager built with Next.js that uploads, creates, opens and deletes

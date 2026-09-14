@@ -10,18 +10,18 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const bin = fileURLToPath(new URL('../bin/create-docs-integration.js', import.meta.url));
+const bin = fileURLToPath(new URL('../bin/create-app.js', import.meta.url));
 
 function runCli(args, options = {}) {
   return spawnSync(process.execPath, [bin, ...args], { encoding: 'utf8', ...options });
 }
 
-const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'create-docs-integration-'));
+const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'create-app-'));
 try {
   // --help / --version
   const help = runCli(['--help']);
   assert.equal(help.status, 0, help.stderr);
-  assert.match(help.stdout, /Usage: npx @onlyoffice\/create-docs-integration/);
+  assert.match(help.stdout, /Usage: npx @onlyoffice\/create-app/);
   const version = runCli(['--version']);
   assert.equal(version.status, 0, version.stderr);
   assert.match(version.stdout.trim(), /^\d+\.\d+\.\d+/);

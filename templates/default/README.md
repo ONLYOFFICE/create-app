@@ -8,7 +8,7 @@ A small file manager built with [Next.js](https://nextjs.org/) that shows how to
 - open files in the ONLYOFFICE editor for editing, or in the viewer when the format is read-only;
 - save changes back through the Document Server callback, protected with JWT.
 
-The project was generated with [`@onlyoffice/create-docs-integration`](https://www.npmjs.com/package/@onlyoffice/create-docs-integration).
+The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/package/@onlyoffice/create-app).
 
 ## Requirements
 
