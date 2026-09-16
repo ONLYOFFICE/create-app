@@ -40,7 +40,6 @@ const EXCLUDED = [
   /\.tsbuildinfo$/,
   /^storage\/(?!\.gitkeep$).+/,
   /^AGENTS\.md$/,
-  /^CLAUDE\.md$/,
   /^\.npmignore$/,
 ];
 

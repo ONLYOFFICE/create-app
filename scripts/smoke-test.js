@@ -56,6 +56,7 @@ try {
     '.env',
     '.env.example',
     'README.md',
+    'CLAUDE.md',
     'next.config.ts',
     'tsconfig.json',
     'eslint.config.mjs',
@@ -79,14 +80,7 @@ try {
   for (const file of mustExist) {
     assert.ok(existsSync(path.join(target, file)), `missing ${file}`);
   }
-  const mustNotExist = [
-    'gitignore',
-    'node_modules',
-    '.next',
-    'next-env.d.ts',
-    'AGENTS.md',
-    'CLAUDE.md',
-  ];
+  const mustNotExist = ['gitignore', 'node_modules', '.next', 'next-env.d.ts', 'AGENTS.md'];
   for (const file of mustNotExist) {
     assert.ok(!existsSync(path.join(target, file)), `unexpected ${file}`);
   }
