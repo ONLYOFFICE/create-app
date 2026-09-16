@@ -15,4 +15,3 @@ bun.lock
 storage/*
 !storage/.gitkeep
 AGENTS.md
-CLAUDE.md

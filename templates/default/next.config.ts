@@ -22,7 +22,7 @@ function allowedDevOrigins(): string[] {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Do not generate AGENTS.md / CLAUDE.md in the project folder on `next dev`.
+  // Do not generate AGENTS.md / CLAUDE.md on `next dev`: the project ships its own CLAUDE.md.
   agentRules: false,
   // Treat this folder as the project root even when a parent directory has its own lockfile.
   turbopack: { root: __dirname },
