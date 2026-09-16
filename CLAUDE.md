@@ -73,6 +73,11 @@ Three lists must stay in sync when the template gains new local-only files: `EXC
 `src/scaffold.js`, `templates/default/.npmignore`, and the `templates/default/*` entries in the root
 `.gitignore`. The smoke test's `mustExist` / `mustNotExist` arrays assert the outcome.
 
+`templates/default/CLAUDE.md` is the exception: it ships with the template and is copied into the
+generated project, where it documents _that_ app. Keep it free of anything about this repository —
+the scaffolder, the submodule, the release process — and put guidance for working on the template
+here instead. `next.config.ts` sets `agentRules: false` so `next dev` never overwrites it.
+
 ## Template app architecture (`templates/default/src`)
 
 Data flow of the integration:
