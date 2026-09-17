@@ -1,7 +1,7 @@
 # @onlyoffice/create-app
 
 Scaffold a demo application that integrates the [ONLYOFFICE Docs](https://www.onlyoffice.com/office-suite.aspx)
-editors, the same way `create-next-app` scaffold a site:
+editors, the same way `create-next-app` scaffolds a site:
 
 ```bash
 npx @onlyoffice/create-app my-app
@@ -97,12 +97,6 @@ git submodule update --remote vendor/document-templates
 npm run sync-templates
 git add vendor/document-templates
 ```
-
-### Publishing
-
-`npm publish --access public` — the `prepack` hook refreshes `templates/default/document-templates`
-from the submodule, and the `files` field plus `.npmignore` keep local state out of the tarball.
-Check the contents with `npm pack --dry-run` first.
 
 ## License
 
