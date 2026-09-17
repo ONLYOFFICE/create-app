@@ -57,6 +57,7 @@ try {
     '.env.example',
     'README.md',
     'CLAUDE.md',
+    'LICENSE',
     'next.config.ts',
     'tsconfig.json',
     'eslint.config.mjs',
@@ -89,6 +90,7 @@ try {
   assert.equal(pkg.name, 'my-demo-app');
   assert.equal(pkg.private, true);
   assert.equal(pkg.version, '0.1.0');
+  assert.equal(pkg.license, 'Apache-2.0');
   assert.equal(pkg.scripts.start, 'next build && next start');
   assert.ok(pkg.dependencies['@onlyoffice/document-editor-react']);
 

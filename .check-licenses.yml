@@ -2,7 +2,7 @@
 - - :approve
   - docs-integration-demo
   - :who:
-    :why: The template app itself (templates/default); scaffold rewrites its package.json
-      for the user's project, so it declares no license
+    :why: The template app itself (templates/default), not a dependency; it ships
+      templates/default/LICENSE and declares the Apache-2.0 license
     :versions: []
     :when: 2026-09-14 10:36:10.313192600 Z
