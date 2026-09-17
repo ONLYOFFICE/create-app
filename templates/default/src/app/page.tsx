@@ -25,6 +25,7 @@ export default async function HomePage() {
             </>
           }
         />
+        <Footer />
       </main>
     );
   }
@@ -36,6 +37,7 @@ export default async function HomePage() {
     <main className={styles.page}>
       <Header documentServerUrl={envResult.env.documentServerUrl} userName={envResult.env.user.name} />
       <FileManager initialFiles={files} initialWarning={warning} accept={accept} />
+      <Footer />
     </main>
   );
 }
@@ -57,5 +59,13 @@ function Header({ documentServerUrl, userName }: { documentServerUrl?: string; u
         ) : null}
       </div>
     </header>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className={`${styles.footer} muted`}>
+      Copyright © {new Date().getFullYear()} Ascensio System SIA. All right reserved
+    </footer>
   );
 }
