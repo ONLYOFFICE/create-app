@@ -1,6 +1,6 @@
 /**
  * POST /api/files/create  { type: "docx" | "xlsx" | "pptx" | "pdf", name?: string }
- * Creates a new blank document from the bundled templates (see ./document-templates).
+ * Creates a new blank document from the templates submodule (see ./document-templates).
  */
 import { requireEnv } from '@/lib/env';
 import { isTemplateType, resolveTemplatePath, TEMPLATE_TITLES } from '@/lib/document-templates';

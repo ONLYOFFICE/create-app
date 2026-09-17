@@ -22,7 +22,7 @@ import licenseHeader from 'eslint-plugin-license-header';
 
 export default [
   {
-    ignores: ['node_modules/**', 'vendor/**', 'templates/**'],
+    ignores: ['node_modules/**', 'templates/**'],
   },
   js.configs.recommended,
   {

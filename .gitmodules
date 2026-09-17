@@ -1,4 +1,0 @@
-[submodule "vendor/document-templates"]
-	path = vendor/document-templates
-	url = https://github.com/ONLYOFFICE/document-templates
-	branch = master

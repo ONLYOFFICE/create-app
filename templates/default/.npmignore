@@ -1,5 +1,11 @@
 # Local state of the template app when it is run in place during development.
 # npm applies this file because it lives in a subdirectory listed in the root "files" field.
+#
+# During development the template app is its own git repository (npm run template:setup) with
+# the document-templates submodule. The generated project gets its own, created by the CLI, so
+# none of that may be published inside the package. npm drops .git itself.
+.gitmodules
+document-templates/
 node_modules/
 .next/
 out/

@@ -63,7 +63,7 @@ src/
     api/                          route handlers (see below)
   components/                     'use client' UI + CSS modules
   lib/                            all the integration logic
-document-templates/<locale>/      blank new.docx / new.xlsx / new.pptx / new.pdf
+document-templates/               git submodule: new/<locale>/new.{docx,xlsx,pptx,pdf}
 storage/                          uploaded documents (git-ignored)
 ```
 
@@ -112,9 +112,12 @@ set `dynamic = 'force-dynamic'`.
   that maps a format's `actions` to behaviour: `edit` → editor, `lossy-edit` → editor plus a warning
   about possible formatting loss, `view` only → viewer, unknown → the file cannot be opened or
   uploaded.
-- **Blank documents** come from `document-templates/<locale>/new.<type>`, resolved by
+- **Blank documents** come from `document-templates/new/<locale>/new.<type>`, resolved by
   `lib/document-templates.ts`: exact locale (`DOCS_LANG`) → same language prefix → `default` →
-  `en-US`.
+  `en-US`. `document-templates/` is a git submodule pointing at
+  [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates); when the folder
+  is empty (a clone without `--recurse-submodules`), "New document" fails until
+  `git submodule update --init` has been run.
 - **Server and client markup must match.** The file list is rendered on the server, so sizes use a
   fixed `en-US` formatter and dates go through `useSyncExternalStore` in `FileManager.tsx` (ISO on
   the server, local format after hydration). Any new locale- or time-dependent output needs the same

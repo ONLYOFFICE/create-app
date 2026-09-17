@@ -13,6 +13,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 ## Requirements
 
 - Node.js 20.12 or newer;
+- git, because the blank documents are a submodule (see below);
 - a running ONLYOFFICE Docs (Document Server) 8.2 or newer, for example
   [in Docker](https://helpcenter.onlyoffice.com/installation/docs-community-install-docker.aspx):
 
@@ -49,6 +50,30 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
 3. Open <http://localhost:3000>, create or upload a document and click it.
 
+## Blank documents are a git submodule
+
+The files behind "New document" come from
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates), attached to this
+project as a git submodule at `document-templates/` (48 locales, `new/<locale>/new.{docx,xlsx,pptx,pdf}`).
+`DOCS_LANG` picks the folder; the resolution order is the exact locale, then the same language
+prefix, then `default`, then `en-US`.
+
+If `document-templates/` is empty — the project was cloned without `--recurse-submodules`, or
+scaffolded on a machine without git — "New document" reports that the templates are missing. Fetch
+them with:
+
+```bash
+git submodule update --init
+```
+
+Nothing else in the application depends on the submodule: uploading, opening, editing and saving
+work without it. To pull newer blank documents later:
+
+```bash
+git submodule update --remote document-templates
+git add document-templates
+```
+
 ## How the integration works
 
 ```
@@ -70,7 +95,7 @@ this app ──(6) downloads the saved file ──────▶ Document Serve
 | File download for the Document Server and the user | `src/app/api/files/[name]/download/route.ts` |
 | Upload, create from template, delete | `src/app/api/files/**` |
 | Editor page (React component `@onlyoffice/document-editor-react`) | `src/components/Editor.tsx` |
-| Blank templates from [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) | `document-templates/<locale>/` |
+| Blank templates from [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) | `document-templates/new/<locale>/` |
 
 ### Edit or view?
 

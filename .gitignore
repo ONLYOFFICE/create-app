@@ -14,7 +14,11 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Generated from vendor/document-templates by `npm run sync-templates`
+# The template app is its own git repository during development (npm run template:setup),
+# set up exactly like a generated project: nested .git, its own .gitmodules and the
+# document-templates submodule. None of it belongs to this repository.
+/templates/default/.git/
+/templates/default/.gitmodules
 /templates/default/document-templates/
 
 # Local state of the template app when it is run in place

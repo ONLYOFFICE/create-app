@@ -44,8 +44,9 @@ try {
   assert.equal(version.status, 0, version.stderr);
   assert.match(version.stdout.trim(), /^\d+\.\d+\.\d+/);
 
-  // Scaffold into a relative path.
-  const result = runCli(['My Demo App', '--skip-install'], { cwd: tmp });
+  // Scaffold into a relative path. Git is skipped here so that the test needs no network;
+  // the submodule itself is covered by the CREATE_APP_TEST_GIT case below.
+  const result = runCli(['My Demo App', '--skip-install', '--skip-git'], { cwd: tmp });
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
   assert.match(result.stdout, /Done!/);
 
@@ -69,22 +70,28 @@ try {
     'src/app/api/editor-config/route.ts',
     'src/lib/editor-config.ts',
     'src/lib/jwt.ts',
-    'document-templates/en-US/new.docx',
-    'document-templates/en-US/new.xlsx',
-    'document-templates/en-US/new.pptx',
-    'document-templates/en-US/new.pdf',
-    'document-templates/default/new.docx',
-    'document-templates/ru-RU/new.docx',
-    'document-templates/LICENSE',
     'storage/.gitkeep',
   ];
   for (const file of mustExist) {
     assert.ok(existsSync(path.join(target, file)), `missing ${file}`);
   }
-  const mustNotExist = ['gitignore', 'node_modules', '.next', 'next-env.d.ts', 'AGENTS.md'];
+  // The blank documents are a git submodule, never a copy of the template's working tree —
+  // and the repository the template itself is developed in must not be copied either.
+  const mustNotExist = [
+    'gitignore',
+    'node_modules',
+    '.next',
+    'next-env.d.ts',
+    'AGENTS.md',
+    'document-templates',
+    '.git',
+    '.gitmodules',
+  ];
   for (const file of mustNotExist) {
     assert.ok(!existsSync(path.join(target, file)), `unexpected ${file}`);
   }
+  // Without git the user must be told how to attach the templates by hand.
+  assert.match(result.stdout, /git submodule add .*document-templates/);
 
   const pkg = JSON.parse(await fs.readFile(path.join(target, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'my-demo-app');
@@ -107,6 +114,40 @@ try {
 
   // Only files from storage/.gitkeep are allowed in storage.
   assert.deepEqual(await fs.readdir(path.join(target, 'storage')), ['.gitkeep']);
+
+  // The real submodule needs git and network access, so it is opt-in (CI sets the variable).
+  if (process.env.CREATE_APP_TEST_GIT === '1') {
+    const withGit = path.join(tmp, 'with-git');
+    const gitRun = runCli([withGit, '--skip-install']);
+    assert.equal(
+      gitRun.status,
+      0,
+      `${gitRun.stdout}
+${gitRun.stderr}`,
+    );
+    for (const file of [
+      '.git',
+      '.gitmodules',
+      'document-templates/new/en-US/new.docx',
+      'document-templates/new/en-US/new.xlsx',
+      'document-templates/new/en-US/new.pptx',
+      'document-templates/new/en-US/new.pdf',
+      'document-templates/new/default/new.docx',
+      'document-templates/new/ru-RU/new.docx',
+      'document-templates/LICENSE',
+    ]) {
+      assert.ok(existsSync(path.join(withGit, file)), `missing ${file}`);
+    }
+    const gitmodules = await fs.readFile(path.join(withGit, '.gitmodules'), 'utf8');
+    assert.match(gitmodules, /path = document-templates/);
+    assert.match(gitmodules, /url = https:\/\/github\.com\/ONLYOFFICE\/document-templates/);
+    // The pointer must be a real gitlink, not a directory full of files.
+    const tracked = spawnSync('git', ['ls-files', '--stage', 'document-templates'], {
+      cwd: withGit,
+      encoding: 'utf8',
+    });
+    assert.match(tracked.stdout, /^160000 /);
+  }
 
   // A second run into the same non-empty directory must fail.
   const again = runCli([target, '--skip-install']);

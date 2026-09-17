@@ -31,11 +31,10 @@
     "pdf"
   ],
   "scripts": {
-    "sync-templates": "node scripts/sync-document-templates.js",
-    "prepack": "npm run sync-templates",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "test": "npm run sync-templates && node scripts/smoke-test.js",
+    "test": "node scripts/smoke-test.js",
+    "template:setup": "node scripts/setup-template-repo.js",
     "template:install": "npm --prefix templates/default install",
     "template:dev": "npm --prefix templates/default run dev",
     "template:build": "npm --prefix templates/default run build"

@@ -1,6 +1,7 @@
 /**
- * Resolves blank document templates copied from
- * https://github.com/ONLYOFFICE/document-templates (folder `new/<locale>/`).
+ * Resolves blank document templates from the `document-templates` git submodule
+ * (https://github.com/ONLYOFFICE/document-templates), whose `new/<locale>/` folder holds
+ * one blank file per format.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -15,7 +16,11 @@ export const TEMPLATE_TITLES: Record<TemplateType, string> = {
   pdf: 'New PDF form',
 };
 
-const templatesRoot = () => path.join(process.cwd(), 'document-templates');
+const templatesRoot = () => path.join(process.cwd(), 'document-templates', 'new');
+
+/** Shown when the submodule was never checked out, which is the usual reason for an empty folder. */
+const MISSING_SUBMODULE =
+  'Run "git submodule update --init" to download them.';
 
 export function isTemplateType(value: unknown): value is TemplateType {
   return typeof value === 'string' && (TEMPLATE_TYPES as string[]).includes(value);
@@ -51,7 +56,7 @@ export async function resolveTemplateLocale(lang: string): Promise<string> {
   for (const fallback of ['default', 'en-US']) {
     if (folders.includes(fallback)) return fallback;
   }
-  throw new Error(`No document templates found in ${root}`);
+  throw new Error(`No document templates found in ${root}. ${MISSING_SUBMODULE}`);
 }
 
 export async function resolveTemplatePath(type: TemplateType, lang: string): Promise<string> {
@@ -61,5 +66,7 @@ export async function resolveTemplatePath(type: TemplateType, lang: string): Pro
     const file = path.join(templatesRoot(), folder, `new.${type}`);
     if (await exists(file)) return file;
   }
-  throw new Error(`Template new.${type} not found (looked in ${candidates.join(', ')})`);
+  throw new Error(
+    `Template new.${type} not found (looked in ${candidates.join(', ')}). ${MISSING_SUBMODULE}`,
+  );
 }

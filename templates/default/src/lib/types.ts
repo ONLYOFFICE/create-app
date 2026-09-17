@@ -30,7 +30,7 @@ export type OpenDecision = {
   lossy: boolean;
 } | null;
 
-/** Blank templates that can be created from `document-templates/<locale>/new.<type>`. */
+/** Blank templates that can be created from `document-templates/new/<locale>/new.<type>`. */
 export type TemplateType = 'docx' | 'xlsx' | 'pptx' | 'pdf';
 
 export type FileInfo = {
