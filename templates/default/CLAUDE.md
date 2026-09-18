@@ -62,10 +62,20 @@ src/
     editor/[fileName]/page.tsx    editor page
     api/                          route handlers (see below)
   components/                     'use client' UI + CSS modules
+  icons/                          format icons of the file list (imported by FormatIcon.tsx)
   lib/                            all the integration logic
+public/
+  favicon.ico                     default tab icon, declared in app/layout.tsx
+  favicons/<type>.ico             tab icon of the editor page, one per document type
 document-templates/               git submodule: new/<locale>/new.{docx,xlsx,pptx,pdf}
 storage/                          uploaded documents (git-ignored)
 ```
+
+The editor tab shows the icon of the document type: `generateMetadata` in
+`app/editor/[fileName]/page.tsx` asks `lib/formats.ts` for the type of the file and points
+`metadata.icons` at `public/favicons/<type>.ico`. That is also why the default icon is declared in
+`app/layout.tsx` instead of `app/favicon.ico` — a file-convention icon cannot be replaced by a
+nested page, only added to.
 
 Server components by default; `'use client'` only in `components/`. Styling is plain CSS:
 `app/globals.css` holds the design tokens and a few global classes (`banner`, `btn`, `muted`),
@@ -135,5 +145,6 @@ set `dynamic = 'force-dynamic'`.
 | File list UI, drag & drop, notifications | `src/components/FileManager.tsx` |
 | "New document" dialog and its default names | `src/components/CreateDialog.tsx` |
 | Editor page, loading and error banners | `src/components/Editor.tsx` |
+| Tab icons per document type | `public/favicons/` + `FAVICONS` in `src/app/editor/[fileName]/page.tsx` |
 | Colors, spacing, global classes | `src/app/globals.css` |
 | A new setting | `src/lib/env.ts` + `.env.example` + `.env` + the table in `README.md` |

@@ -1,9 +1,12 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Editor } from '@/components/Editor';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { loadEnv } from '@/lib/env';
+import { findFormat } from '@/lib/formats';
 import { HttpError } from '@/lib/http';
 import { safeName, statFile } from '@/lib/storage';
+import type { DocumentType } from '@/lib/types';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -18,9 +21,38 @@ function decodeName(raw: string): string | null {
   }
 }
 
-export async function generateMetadata({ params }: Props) {
+/**
+ * Tab icon per document type, so an editor tab can be told apart at a glance.
+ * The files live in `public/favicons`; every other page keeps the default icon of
+ * `app/layout.tsx`.
+ */
+const FAVICONS: Record<DocumentType, string> = {
+  word: '/favicons/word.ico',
+  cell: '/favicons/cell.ico',
+  slide: '/favicons/slide.ico',
+  pdf: '/favicons/pdf.ico',
+  diagram: '/favicons/diagram.ico',
+};
+
+/** The document type comes from the Document Server; if it is unreachable, there is no icon. */
+async function faviconFor(fileName: string): Promise<string | null> {
+  try {
+    const format = await findFormat(fileName);
+    return format ? FAVICONS[format.type] : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const name = decodeName((await params).fileName);
-  return { title: name ? `${name} · ONLYOFFICE Docs` : 'File not found' };
+  if (!name) return { title: 'File not found' };
+  const favicon = await faviconFor(name);
+  // Without an `icons` field the page inherits the default icon from the root layout.
+  return {
+    title: `${name} · ONLYOFFICE Docs`,
+    ...(favicon ? { icons: { icon: { url: favicon, sizes: '32x32', type: 'image/x-icon' } } } : {}),
+  };
 }
 
 export default async function EditorPage({ params }: Props) {
