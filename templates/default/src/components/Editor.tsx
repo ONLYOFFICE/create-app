@@ -71,6 +71,23 @@ export function Editor({ fileName }: { fileName: string }) {
     );
   }
 
+  // The size and the event handlers are part of the config the component passes to
+  // DocsAPI.DocEditor; the config from the server carries the JWT and is left untouched.
+  const config: Config = {
+    ...session.config,
+    width: '100%',
+    height: '100%',
+    events: {
+      onDocumentReady: () => console.info('[editor] document ready'),
+      onError: (event) => {
+        const data = event.data;
+        setEditorError(
+          data ? `${data.errorDescription ?? 'Unknown error'} (code ${data.errorCode ?? '?'})` : 'Unknown error',
+        );
+      },
+    },
+  };
+
   return (
     <>
       {editorError ? (
@@ -98,16 +115,7 @@ export function Editor({ fileName }: { fileName: string }) {
         <DocumentEditor
           id="onlyoffice-editor"
           documentServerUrl={session.documentServerUrl}
-          config={session.config}
-          height="100%"
-          width="100%"
-          events_onDocumentReady={() => console.info('[editor] document ready')}
-          events_onError={(event) => {
-            const data = (event as { data?: { errorCode?: number; errorDescription?: string } }).data;
-            setEditorError(
-              data ? `${data.errorDescription ?? 'Unknown error'} (code ${data.errorCode ?? '?'})` : 'Unknown error',
-            );
-          }}
+          config={config}
           onLoadComponentError={(errorCode, errorDescription) => {
             setEditorError(
               `${errorDescription} (code ${errorCode}). Check that DOCUMENT_SERVER_URL (${session.documentServerUrl}) is reachable from your browser.`,
