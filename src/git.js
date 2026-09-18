@@ -125,11 +125,7 @@ async function seedExcludes(dir, ignoreFile) {
  * the part the application needs to work.
  */
 export async function setupRepository(targetDir, options = {}) {
-  const {
-    alwaysInit = false,
-    excludeFrom,
-    message = 'Initial commit',
-  } = options;
+  const { alwaysInit = false, excludeFrom, message = 'Initial commit' } = options;
 
   const own = await isRepositoryRoot(targetDir);
   const inside = own || (!alwaysInit && (await isInsideRepository(targetDir)));
