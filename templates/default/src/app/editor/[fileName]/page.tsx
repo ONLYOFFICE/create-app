@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const favicon = await faviconFor(name);
   // Without an `icons` field the page inherits the default icon from the root layout.
   return {
-    title: `${name} · ONLYOFFICE Docs`,
+    title: `${name} · ONLYOFFICE`,
     ...(favicon ? { icons: { icon: { url: favicon, sizes: '32x32', type: 'image/x-icon' } } } : {}),
   };
 }
