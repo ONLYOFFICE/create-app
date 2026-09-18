@@ -1,4 +1,4 @@
-# ONLYOFFICE Docs integration demo
+# ONLYOFFICE Docs – Integration Demo
 
 A small file manager built with [Next.js](https://nextjs.org/) that shows how to integrate the
 [ONLYOFFICE Docs](https://www.onlyoffice.com/office-suite.aspx) editors into a web application:

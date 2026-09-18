@@ -135,7 +135,9 @@ export async function main(argv) {
   const packageName = toPackageName(projectName);
 
   console.log();
-  log.info(`${log.bold('ONLYOFFICE Docs integration demo')} ${log.dim(`v${await readVersion()}`)}`);
+  log.info(
+    `${log.bold('ONLYOFFICE Docs – Integration Demo')} ${log.dim(`v${await readVersion()}`)}`,
+  );
   console.log();
 
   await assertTargetDir(targetDir);

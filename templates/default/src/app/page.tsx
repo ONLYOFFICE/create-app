@@ -46,7 +46,7 @@ function Header({ documentServerUrl, userName }: { documentServerUrl?: string; u
   return (
     <header className={styles.header}>
       <div>
-        <h1 className={styles.title}>ONLYOFFICE Docs integration demo</h1>
+        <h1 className={styles.title}>ONLYOFFICE Docs – Integration Demo</h1>
         {documentServerUrl ? (
           <p className={`${styles.subtitle} muted`}>
             Document Server: <code>{documentServerUrl}</code>

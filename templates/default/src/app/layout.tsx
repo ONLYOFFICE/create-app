@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ONLYOFFICE Docs integration demo',
+  title: 'ONLYOFFICE Docs – Integration Demo',
   description: 'A minimal file manager that opens documents in ONLYOFFICE Docs',
   // Declared here rather than as `src/app/favicon.ico`, so that the editor page can replace
   // it with an icon of the document type instead of adding a second <link rel="icon">.
