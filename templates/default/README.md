@@ -19,7 +19,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
   ```bash
   docker run -i -t -d -p 80:80 --restart=always \
-    -e JWT_SECRET=my_jwt_secret onlyoffice/documentserver
+    -e JWT_SECRET=developer-only-not-a-real-secret onlyoffice/documentserver
   ```
 
 ## Getting started
