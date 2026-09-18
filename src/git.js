@@ -128,7 +128,7 @@ export async function setupRepository(targetDir, options = {}) {
   const {
     alwaysInit = false,
     excludeFrom,
-    message = 'Initial commit from @onlyoffice/create-app',
+    message = 'Initial commit',
   } = options;
 
   const own = await isRepositoryRoot(targetDir);
