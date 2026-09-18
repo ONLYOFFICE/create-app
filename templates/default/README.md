@@ -18,7 +18,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
   [in Docker](https://helpcenter.onlyoffice.com/installation/docs-community-install-docker.aspx):
 
   ```bash
-  docker run -i -t -d -p 8080:80 --restart=always \
+  docker run -i -t -d -p 80:80 --restart=always \
     -e JWT_SECRET=my_jwt_secret onlyoffice/documentserver
   ```
 
@@ -28,7 +28,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
    | Variable | Meaning |
    | --- | --- |
-   | `DOCUMENT_SERVER_URL` | URL of the Document Server **as seen from the browser**, e.g. `http://localhost:8080/`. Required. |
+   | `DOCUMENT_SERVER_URL` | URL of the Document Server **as seen from the browser**, e.g. `http://localhost/`. Required. |
    | `DOCUMENT_SERVER_INTERNAL_URL` | URL of the Document Server as seen from this app (server side). Only needed when it differs, e.g. inside Docker networks. |
    | `DOCUMENT_SERVER_JWT_SECRET` | JWT secret of the Document Server (`JWT_SECRET` for Docker, `services.CoAuthoring.secret.*` in `local.json`). Leave empty only when JWT is disabled. |
    | `DOCUMENT_SERVER_JWT_HEADER` | Header the Document Server uses for JWT, `Authorization` by default. |
