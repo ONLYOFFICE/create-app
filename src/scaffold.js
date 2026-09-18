@@ -44,7 +44,7 @@ const EXCLUDED = [
   /^yarn\.lock$/,
   /^bun\.lockb?$/,
   /\.tsbuildinfo$/,
-  /^storage\/(?!\.gitkeep$).+/,
+  /^storage\/(?!\.gitkeep$|README\.md$).+/,
   /^AGENTS\.md$/,
   /^\.npmignore$/,
 ];

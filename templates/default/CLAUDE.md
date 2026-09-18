@@ -68,7 +68,7 @@ public/
   favicon.ico                     default tab icon, declared in app/layout.tsx
   favicons/<type>.ico             tab icon of the editor page, one per document type
 document-templates/               git submodule: new/<locale>/new.{docx,xlsx,pptx,pdf}
-storage/                          uploaded documents (git-ignored)
+storage/                          uploaded documents (git-ignored, except the README.md demo copy)
 ```
 
 The editor tab shows the icon of the document type: `generateMetadata` in

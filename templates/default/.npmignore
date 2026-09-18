@@ -20,4 +20,5 @@ bun.lock
 *.tsbuildinfo
 storage/*
 !storage/.gitkeep
+!storage/README.md
 AGENTS.md

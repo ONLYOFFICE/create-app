@@ -71,6 +71,7 @@ try {
     'src/lib/editor-config.ts',
     'src/lib/jwt.ts',
     'storage/.gitkeep',
+    'storage/README.md',
   ];
   for (const file of mustExist) {
     assert.ok(existsSync(path.join(target, file)), `missing ${file}`);
@@ -112,8 +113,14 @@ try {
   assert.match(gitignore, /^\.env$/m);
   assert.match(gitignore, /^\/storage\/\*$/m);
 
-  // Only files from storage/.gitkeep are allowed in storage.
-  assert.deepEqual(await fs.readdir(path.join(target, 'storage')), ['.gitkeep']);
+  // Storage starts with the demo document and nothing else; local uploads must not leak into it.
+  const storage = await fs.readdir(path.join(target, 'storage'));
+  assert.deepEqual(storage.sort(), ['.gitkeep', 'README.md']);
+  // The demo document is a copy of the project README, not a file of its own.
+  assert.equal(
+    await fs.readFile(path.join(target, 'storage/README.md'), 'utf8'),
+    await fs.readFile(path.join(target, 'README.md'), 'utf8'),
+  );
 
   // The real submodule needs git and network access, so it is opt-in (CI sets the variable).
   if (process.env.CREATE_APP_TEST_GIT === '1') {

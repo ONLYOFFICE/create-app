@@ -86,6 +86,12 @@ Three lists must stay in sync when the template gains new local-only files: `EXC
 `src/scaffold.js`, `templates/default/.npmignore`, and the `templates/default/*` entries in the root
 `.gitignore`. The smoke test's `mustExist` / `mustNotExist` arrays assert the outcome.
 
+`storage/` is one of those local-only folders, with two exceptions that every list explicitly lets
+through: `.gitkeep` and `README.md`. The latter is a copy of `templates/default/README.md` that
+ships with the template, so a generated project opens with one document already in the file list
+(`md` has the `lossy-edit` action, so it opens in the editor). Both copies must stay identical —
+the smoke test compares them.
+
 `src/git.js` is what makes the blank documents appear: `setupRepository()` runs `git init`
 (skipped when the target is already inside a working tree, unless `alwaysInit`) and
 `git submodule add https://github.com/ONLYOFFICE/document-templates document-templates`, then an

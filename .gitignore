@@ -31,3 +31,4 @@ Thumbs.db
 /templates/default/package-lock.json
 /templates/default/storage/*
 !/templates/default/storage/.gitkeep
+!/templates/default/storage/README.md
