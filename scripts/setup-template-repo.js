@@ -42,7 +42,7 @@ const { initialized, reused, committed } = await setupRepository(templateDir, {
   // During development the template's ignore file is still called `gitignore`; without it the
   // first commit would swallow node_modules, .next and a real .env.
   excludeFrom: 'gitignore',
-  message: 'Template app, set up for development by npm run template:setup',
+  message: 'Initial commit',
 });
 
 const where = path.relative(process.cwd(), path.join(templateDir, TEMPLATES_SUBMODULE.path));
