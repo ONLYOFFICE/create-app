@@ -1,6 +1,6 @@
 {
   "name": "@onlyoffice/create-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Scaffold a demo application that integrates ONLYOFFICE Docs (Document Server) with Next.js",
   "license": "Apache-2.0",
   "bugs": {

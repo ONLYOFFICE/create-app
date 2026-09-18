@@ -114,7 +114,7 @@ export async function scaffold({ targetDir, packageName }) {
   const packageJsonPath = path.join(targetDir, 'package.json');
   const pkg = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
   pkg.name = packageName;
-  pkg.version = '0.1.0';
+  pkg.version = '1.0.0';
   pkg.private = true;
   await fs.writeFile(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }

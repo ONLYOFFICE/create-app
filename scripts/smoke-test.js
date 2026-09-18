@@ -95,7 +95,7 @@ try {
   const pkg = JSON.parse(await fs.readFile(path.join(target, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'my-demo-app');
   assert.equal(pkg.private, true);
-  assert.equal(pkg.version, '0.1.0');
+  assert.equal(pkg.version, '1.0.0');
   assert.equal(pkg.license, 'Apache-2.0');
   assert.equal(pkg.scripts.start, 'next build && next start');
   assert.ok(pkg.dependencies['@onlyoffice/document-editor-react']);
