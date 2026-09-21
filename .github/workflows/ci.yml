@@ -39,13 +39,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
-      # Sets the template app up the way a contributor has it locally, so the smoke test also
-      # proves that the nested repository and its submodule never reach a generated project.
-      - run: npm run template:setup
       - run: npm test
-        env:
-          # Also scaffold with git and assert that the templates submodule is attached.
-          CREATE_APP_TEST_GIT: '1'
       - run: npm pack --dry-run
 
   template:
@@ -56,7 +50,6 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: npm run template:setup
       - run: npm install
         working-directory: templates/default
       - run: npm run lint

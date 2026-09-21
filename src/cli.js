@@ -23,7 +23,6 @@ import { fileURLToPath } from 'node:url';
 import prompts from 'prompts';
 import { detectPackageManager, PACKAGE_MANAGERS, runInstall, runScriptCommand } from './install.js';
 import { log } from './log.js';
-import { ADD_SUBMODULE_COMMAND, isGitAvailable, setupRepository } from './git.js';
 import { assertTargetDir, scaffold, toPackageName } from './scaffold.js';
 
 const HELP = `
@@ -35,9 +34,7 @@ documents in the ONLYOFFICE editors.
 
 Options:
   --skip-install     do not install dependencies
-  --skip-git         do not create a git repository and do not attach the
-                     blank document templates submodule
-  --use-npm          install with npm  (default: the package manager that ran this command)
+  --use-npm        install with npm  (default: the package manager that ran this command)
   --use-pnpm         install with pnpm
   --use-yarn         install with yarn
   --use-bun          install with bun
@@ -98,7 +95,6 @@ export async function main(argv) {
     allowPositionals: true,
     options: {
       'skip-install': { type: 'boolean', default: false },
-      'skip-git': { type: 'boolean', default: false },
       'use-npm': { type: 'boolean', default: false },
       'use-pnpm': { type: 'boolean', default: false },
       'use-yarn': { type: 'boolean', default: false },
@@ -146,11 +142,6 @@ export async function main(argv) {
   await scaffold({ targetDir, packageName });
   log.success('Project files copied');
 
-  const templatesAttached = await setupTemplatesSubmodule({
-    targetDir,
-    skip: values['skip-git'],
-  });
-
   let installed = false;
   if (values['skip-install']) {
     log.info(`${log.dim('Skipping dependency installation (--skip-install)')}`);
@@ -169,44 +160,10 @@ export async function main(argv) {
     }
   }
 
-  printNextSteps({ targetDir, packageManager, installed, templatesAttached });
+  printNextSteps({ targetDir, packageManager, installed });
 }
 
-/**
- * Attaches https://github.com/ONLYOFFICE/document-templates to the generated project as a git
- * submodule: it provides the blank documents behind "New document". Never fatal — the rest of
- * the application works without it, so a failure is reported as a warning plus the command to
- * run by hand.
- */
-async function setupTemplatesSubmodule({ targetDir, skip }) {
-  if (skip) {
-    log.info(log.dim('Skipping the git repository and the templates submodule (--skip-git)'));
-    return false;
-  }
-  if (!(await isGitAvailable())) {
-    log.warn('git was not found on PATH, so the blank document templates were not attached.');
-    return false;
-  }
-
-  log.step('Attaching the blank document templates as a git submodule…');
-  try {
-    const { initialized, committed } = await setupRepository(targetDir);
-    log.success(
-      initialized
-        ? `Git repository initialized${committed ? ' with an initial commit' : ''}, templates attached`
-        : 'Templates attached to the surrounding git repository',
-    );
-    if (initialized && !committed) {
-      log.info(log.dim('  Nothing was committed: configure user.name and user.email to commit.'));
-    }
-    return true;
-  } catch (error) {
-    log.warn(`Could not attach the document templates: ${error.message}`);
-    return false;
-  }
-}
-
-function printNextSteps({ targetDir, packageManager, installed, templatesAttached }) {
+function printNextSteps({ targetDir, packageManager, installed }) {
   const relative = path.relative(process.cwd(), targetDir) || '.';
   const cdPath = /\s/.test(relative) ? `"${relative}"` : relative;
 
@@ -216,10 +173,6 @@ function printNextSteps({ targetDir, packageManager, installed, templatesAttache
   log.info('Next steps:');
   console.log();
   log.info(`  ${log.cmd(`cd ${cdPath}`)}`);
-  if (!templatesAttached) {
-    log.info(`  ${log.dim('# blank documents for "New document" (requires git and network)')}`);
-    log.info(`  ${log.cmd(ADD_SUBMODULE_COMMAND)}`);
-  }
   if (!installed) log.info(`  ${log.cmd(`${packageManager} install`)}`);
   log.info(
     `  ${log.dim('# edit .env: set DOCUMENT_SERVER_URL, DOCUMENT_SERVER_JWT_SECRET and APP_URL')}`,

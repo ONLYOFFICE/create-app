@@ -67,7 +67,7 @@ src/
 public/
   favicon.ico                     default tab icon, declared in app/layout.tsx
   favicons/<type>.ico             tab icon of the editor page, one per document type
-document-templates/               git submodule: new/<locale>/new.{docx,xlsx,pptx,pdf}
+document-templates/               blank documents: new/<locale>/new.{docx,xlsx,pptx,pdf}
 storage/                          uploaded documents (git-ignored, except the README.md demo copy)
 ```
 
@@ -124,10 +124,9 @@ set `dynamic = 'force-dynamic'`.
   uploaded.
 - **Blank documents** come from `document-templates/new/<locale>/new.<type>`, resolved by
   `lib/document-templates.ts`: exact locale (`DOCS_LANG`) → same language prefix → `default` →
-  `en-US`. `document-templates/` is a git submodule pointing at
-  [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates); when the folder
-  is empty (a clone without `--recurse-submodules`), "New document" fails until
-  `git submodule update --init` has been run.
+  `en-US`. `document-templates/` is an ordinary folder of the project, a copy of
+  [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates); when it is
+  missing, only "New document" stops working.
 - **Server and client markup must match.** The file list is rendered on the server, so sizes use a
   fixed `en-US` formatter and dates go through `useSyncExternalStore` in `FileManager.tsx` (ISO on
   the server, local format after hydration). Any new locale- or time-dependent output needs the same

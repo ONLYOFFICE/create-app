@@ -26,9 +26,7 @@ Root (CLI):
 
 ```bash
 npm install
-npm run template:setup   # one-time: make templates/default a git repo with the templates submodule
 npm test                 # scripts/smoke-test.js: scaffolds into a temp dir, asserts the result (offline)
-CREATE_APP_TEST_GIT=1 npm test   # additionally scaffolds with git and checks the submodule (needs network)
 npm run lint             # eslint . && prettier --check .
 npm run format           # prettier --write .
 npm pack --dry-run       # check what ships
@@ -37,7 +35,6 @@ npm pack --dry-run       # check what ships
 Template app (run in place, from the root):
 
 ```bash
-npm run template:setup                 # git repo + document-templates submodule (run this first)
 npm run template:install               # npm --prefix templates/default install
 npm run template:dev                   # next dev (needs templates/default/.env, copy from .env.example)
 npm run template:build
@@ -46,23 +43,18 @@ npm --prefix templates/default run typecheck
 ```
 
 There is a single smoke test, not a test framework; "running one test" means editing and running
-`node scripts/smoke-test.js` directly. It runs offline by default (the CLI is invoked with
-`--skip-git`); set `CREATE_APP_TEST_GIT=1` to also exercise the real `git submodule add`, which
-needs git and network access.
+`node scripts/smoke-test.js` directly. It needs no network: the CLI is invoked with
+`--skip-install`, and everything else it does is a file copy.
 
-**This repository has no submodules of its own.** `npm run template:setup`
-(`scripts/setup-template-repo.js`) instead sets `templates/default` up exactly like a generated
-project: a nested git repository with `document-templates` attached as a submodule. It goes through
-the same `setupRepository()` in `src/git.js` that the CLI uses, so development and production cannot
-drift apart. Re-running it is safe.
+**Neither this repository nor a generated project uses git.** The CLI runs no `git` at all — it
+copies the template and installs dependencies, nothing more. The blank documents behind
+"New document" are ordinary files of the template
+(`templates/default/document-templates/new/<locale>/`), committed here and shipped in the tarball,
+so scaffolding works offline and the developer's working copy is exactly what a user gets. Making
+the new project a repository is the user's own call.
 
-Everything that nested repository owns — `.git`, `.gitmodules`, `document-templates/` — is ignored by
-this repository, excluded from the copy (`EXCLUDED` in `src/scaffold.js`) and kept out of the tarball
-(`templates/default/.npmignore`). The smoke test asserts all three are absent from a generated
-project, which is the regression test for that.
-
-CI (`.github/workflows/ci.yml`) runs `template:setup` and then root lint + smoke test (with
-`CREATE_APP_TEST_GIT=1`) on Ubuntu and Windows, and lints, typechecks and builds the template app. Keep the CLI Windows-compatible (see `shell: win32` in
+CI (`.github/workflows/ci.yml`) runs root lint + smoke test on Ubuntu and Windows, and lints,
+typechecks and builds the template app. Keep the CLI Windows-compatible (see `shell: win32` in
 `src/install.js` and POSIX-normalised paths in `src/scaffold.js`).
 
 `.github/workflows/licenses.yml` runs `ONLYOFFICE/check-licenses` (LicenseFinder) against both
@@ -72,14 +64,12 @@ at the root; the template package itself is approved there because it declares n
 ## CLI architecture (`src/`)
 
 - `cli.js` — `parseArgs` options, interactive `prompts` for the project name, orchestrates
-  scaffold → git submodule → install → "next steps" output. Only the final folder name is validated, so relative and
+  scaffold → install → "next steps" output. Only the final folder name is validated, so relative and
   absolute paths are accepted.
 - `scaffold.js` — copies `templates/default/` with `fs.cp` and an `EXCLUDED` regex list, then
   renames `gitignore` → `.gitignore` (npm does not publish `.gitignore`), copies `.env.example` →
   `.env`, and rewrites `package.json` name/version/private.
 - `install.js` — detects the package manager from `npm_config_user_agent`, spawns `<pm> install`.
-- `git.js` — `git init` + `git submodule add` for the blank documents; shared by the CLI and
-  `scripts/setup-template-repo.js`.
 - `log.js` — `util.styleText` wrapper (the reason for the Node 20.12 floor).
 
 Three lists must stay in sync when the template gains new local-only files: `EXCLUDED` in
@@ -92,18 +82,14 @@ ships with the template, so a generated project opens with one document already 
 (`md` has the `lossy-edit` action, so it opens in the editor). Both copies must stay identical —
 the smoke test compares them.
 
-`src/git.js` is what makes the blank documents appear: `setupRepository()` runs `git init`
-(skipped when the target is already inside a working tree, unless `alwaysInit`) and
-`git submodule add https://github.com/ONLYOFFICE/document-templates document-templates`, then an
-initial commit. In the CLI every failure there is a warning, never fatal — it falls back to printing
-the command for the user, and `--skip-git` turns the step off. `scripts/setup-template-repo.js`
-calls the same function with `alwaysInit` (so the submodule lands in the nested repository rather
-than this one) and `excludeFrom: 'gitignore'` (during development the template's ignore file has no
-dot yet, and without it the first commit would swallow `node_modules` and a real `.env`).
+`templates/default/document-templates/` is a copy of
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates), tracked here like
+any other template file. Refresh it by replacing its contents with a newer checkout of that
+repository; `lib/document-templates.ts` in the app only reads `new/<locale>/new.<type>` out of it.
 
 `templates/default/CLAUDE.md` is the exception: it ships with the template and is copied into the
 generated project, where it documents _that_ app. Keep it free of anything about this repository —
-the scaffolder, the submodule, the release process — and put guidance for working on the template
+the scaffolder, the release process — and put guidance for working on the template
 here instead. `next.config.ts` sets `agentRules: false` so `next dev` never overwrites it.
 
 ## Template app architecture (`templates/default/src`)
@@ -132,10 +118,10 @@ Key decisions worth knowing before editing:
   needed; it changes automatically after each save.
 - **Config** is read once by `lib/env.ts` (`loadEnv` / `requireEnv`); missing config surfaces as a
   503 `EnvError` through `lib/http.ts`'s `handleRoute` wrapper, which every API route uses.
-- **Blank documents** for "New document" come from the `document-templates` submodule,
+- **Blank documents** for "New document" come from
   `document-templates/new/<locale>/new.{docx,xlsx,pptx,pdf}`, resolved by
-  `lib/document-templates.ts` (exact locale → language prefix → `default` → `en-US`). An empty
-  folder means the submodule was not checked out; only "New document" depends on it.
+  `lib/document-templates.ts` (exact locale → language prefix → `default` → `en-US`). Only
+  "New document" depends on that folder.
 
 ## Release process
 

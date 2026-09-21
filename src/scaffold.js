@@ -24,15 +24,12 @@ export const TEMPLATE_DIR = fileURLToPath(new URL('../templates/default/', impor
 
 /**
  * Paths (relative to the template root, POSIX separators) that must never be copied.
- * They only exist when the template has been run in place during development, where it is set
- * up as its own git repository (`npm run template:setup`): `.git`, `.gitmodules` and the
- * `document-templates` submodule all belong to that repository. The generated project gets its
- * own, created by `src/git.js`.
+ * They only exist when the template has been run in place during development: dependencies, a
+ * build, a real `.env`, uploaded documents. A `.git` is there only if somebody created one by
+ * hand — a generated project is not a repository until the user makes it one.
  */
 const EXCLUDED = [
-  /^\.git(\/|$)/,
-  /^\.gitmodules$/,
-  /^document-templates(\/|$)/,
+  /(^|\/)\.git(\/|$)/,
   /^node_modules(\/|$)/,
   /^\.next(\/|$)/,
   /^out(\/|$)/,

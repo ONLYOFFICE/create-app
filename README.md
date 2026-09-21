@@ -15,7 +15,7 @@ The generated project is a small file manager built with **Next.js + React + Typ
 - lists, uploads, downloads and deletes files;
 - creates blank `docx`, `xlsx`, `pptx` and `pdf` files from
   [ONLYOFFICE document templates](https://github.com/ONLYOFFICE/document-templates) (48 locales),
-  attached to the generated project as a git submodule;
+  shipped with the project;
 - asks the Document Server which formats it supports (`GET /meta/formats`) and opens each file
   either in the editor or, for read-only formats, in the viewer;
 - signs the editor configuration with JWT and verifies JWT on the save callback;
@@ -31,8 +31,6 @@ npx @onlyoffice/create-app [project-directory] [options]
 
 Options:
   --skip-install     do not install dependencies
-  --skip-git         do not create a git repository and do not attach the
-                     blank document templates submodule
   --use-npm          install with npm (default: the package manager that ran this command)
   --use-pnpm         install with pnpm
   --use-yarn         install with yarn
@@ -44,16 +42,14 @@ Options:
 Equivalent invocations: `npm init @onlyoffice/app my-app`,
 `pnpm create @onlyoffice/app my-app`, `yarn create @onlyoffice/app my-app`.
 
-The scaffolder initializes a git repository in the new directory and attaches
-[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) to it as a
-submodule at `document-templates/` — those are the blank files behind "New document". When git is
-unavailable, the network is down or `--skip-git` was given, everything else still works and the CLI
-prints the command to attach them later.
+The scaffolder only copies files: it creates no git repository and downloads nothing besides the
+dependencies. The blank documents behind "New document"
+([ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates)) are part of the
+template and land in `document-templates/` of the new project.
 
 ## Requirements
 
 - Node.js 20.12 or newer.
-- git, for the blank documents submodule of the generated project (optional: see `--skip-git`).
 - An ONLYOFFICE Docs (Document Server) 8.2 or newer that can reach the machine where the demo runs.
   The quickest way is Docker:
   `docker run -i -t -d -p 80:80 -e JWT_SECRET=developer-only-not-a-real-secret onlyoffice/documentserver`
@@ -63,22 +59,13 @@ prints the command to attach them later.
 ```
 bin/create-app.js                 CLI entry point
 src/                              CLI implementation (plain ESM JavaScript, no build step)
-src/git.js                        git init + "git submodule add" for the blank documents
 templates/default/                the demo application (a complete Next.js project)
-scripts/setup-template-repo.js    sets templates/default up as its own git repository, the way
-                                  a generated project is (npm run template:setup)
+templates/default/document-templates/   blank documents behind "New document"
 scripts/smoke-test.js             runs the CLI into a temp dir and checks the result
 ```
 
-This repository has no submodules. The blank documents are attached by git at the moment a project
-is created, and `npm run template:setup` does the same thing to `templates/default` so that the app
-developed in place is set up exactly like the one users get:
-
-```
-templates/default/.git/           nested repository, created by npm run template:setup
-templates/default/.gitmodules     its submodule declaration
-templates/default/document-templates/   the submodule itself → ONLYOFFICE/document-templates
-```
+This repository has no submodules: everything the generated project needs is a plain file of the
+template, so scaffolding works offline and without git.
 
 ## Development
 
@@ -86,9 +73,7 @@ templates/default/document-templates/   the submodule itself → ONLYOFFICE/docu
 git clone https://github.com/ONLYOFFICE/create-app.git
 cd create-app
 npm install
-npm run template:setup          # once: makes templates/default a git repo with the submodule
-npm test                        # smoke test of the CLI (offline)
-CREATE_APP_TEST_GIT=1 npm test  # also scaffolds with git and checks the submodule (needs network)
+npm test                        # smoke test of the CLI
 npm run lint
 ```
 
@@ -101,14 +86,8 @@ cp .env.example .env            # then edit it
 npm run dev
 ```
 
-Note that `templates/default` is a git repository of its own after `template:setup`, so `git` run
-from inside it talks to that repository, not to this one. Commit the template's sources from the
-repository root as usual.
-
 The template's `node_modules`, `.next`, `.env`, lock file and uploaded files are excluded both from
-git and from the npm package, and are skipped by the CLI when it copies the template. So are the
-nested repository, its `.gitmodules` and `document-templates`: the generated project builds its
-own.
+git and from the npm package, and are skipped by the CLI when it copies the template.
 
 To try the CLI end to end from a tarball:
 
@@ -119,12 +98,9 @@ npx ./onlyoffice-create-app-*.tgz my-app
 
 ### Updating the blank templates
 
-A generated project always clones the templates fresh from `master`, so there is no pointer in this
-repository to bump. To refresh the copy used during development:
-
-```bash
-git -C templates/default submodule update --remote document-templates
-```
+`templates/default/document-templates/` is a copy of
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates). To refresh it,
+replace its contents with a newer checkout of that repository and commit the result.
 
 ## License
 

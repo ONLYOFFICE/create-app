@@ -13,7 +13,6 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 ## Requirements
 
 - Node.js 20.12 or newer;
-- git, because the blank documents are a submodule (see below);
 - a running ONLYOFFICE Docs (Document Server) 8.2 or newer, for example
   [in Docker](https://helpcenter.onlyoffice.com/installation/docs-community-install-docker.aspx):
 
@@ -50,29 +49,17 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
 3. Open <http://localhost:3000>, create or upload a document and click it.
 
-## Blank documents are a git submodule
+## Blank documents
 
-The files behind "New document" come from
-[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates), attached to this
-project as a git submodule at `document-templates/` (48 locales, `new/<locale>/new.{docx,xlsx,pptx,pdf}`).
-`DOCS_LANG` picks the folder; the resolution order is the exact locale, then the same language
-prefix, then `default`, then `en-US`.
+The files behind "New document" live in `document-templates/` — a copy of
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) that ships with
+the project, one blank file per format in `new/<locale>/new.{docx,xlsx,pptx,pdf}`. `DOCS_LANG`
+picks the folder; the resolution order is the exact locale, then the same language prefix, then
+`default`, then `en-US`.
 
-If `document-templates/` is empty — the project was cloned without `--recurse-submodules`, or
-scaffolded on a machine without git — "New document" reports that the templates are missing. Fetch
-them with:
-
-```bash
-git submodule update --init
-```
-
-Nothing else in the application depends on the submodule: uploading, opening, editing and saving
-work without it. To pull newer blank documents later:
-
-```bash
-git submodule update --remote document-templates
-git add document-templates
-```
+They are ordinary files: replace them to change what a new document looks like. If the folder is
+missing, "New document" reports that the templates are gone; nothing else in the application
+depends on them — uploading, opening, editing and saving work without it.
 
 ## How the integration works
 
