@@ -5,9 +5,12 @@
   "description": "Demo application integrating ONLYOFFICE Docs with Next.js",
   "license": "Apache-2.0",
   "scripts": {
+    "predev": "node scripts/fetch-templates.mjs",
     "dev": "next dev",
     "build": "next build",
+    "prestart": "node scripts/fetch-templates.mjs",
     "start": "next build && next start",
+    "fetch-templates": "node scripts/fetch-templates.mjs",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },

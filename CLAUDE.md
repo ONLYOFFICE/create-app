@@ -37,6 +37,7 @@ Template app (run in place, from the root):
 ```bash
 npm run template:install               # npm --prefix templates/default install
 npm run template:dev                   # next dev (needs templates/default/.env, copy from .env.example)
+                                       # its predev hook downloads the blank documents once
 npm run template:build
 npm --prefix templates/default run lint
 npm --prefix templates/default run typecheck
@@ -47,11 +48,11 @@ There is a single smoke test, not a test framework; "running one test" means edi
 `--skip-install`, and everything else it does is a file copy.
 
 **Neither this repository nor a generated project uses git.** The CLI runs no `git` at all — it
-copies the template and installs dependencies, nothing more. The blank documents behind
-"New document" are ordinary files of the template
-(`templates/default/document-templates/new/<locale>/`), committed here and shipped in the tarball,
-so scaffolding works offline and the developer's working copy is exactly what a user gets. Making
-the new project a repository is the user's own call.
+copies the template and installs dependencies, nothing more; making the new project a repository
+is the user's own call. The blank documents behind "New document" are not shipped either: the app
+downloads them itself over HTTPS before it starts (`templates/default/scripts/fetch-templates.mjs`,
+see below), so `templates/default/document-templates/` is generated local state in every list that
+matters.
 
 CI (`.github/workflows/ci.yml`) runs root lint + smoke test on Ubuntu and Windows, and lints,
 typechecks and builds the template app. Keep the CLI Windows-compatible (see `shell: win32` in
@@ -82,10 +83,15 @@ ships with the template, so a generated project opens with one document already 
 (`md` has the `lossy-edit` action, so it opens in the editor). Both copies must stay identical —
 the smoke test compares them.
 
-`templates/default/document-templates/` is a copy of
-[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates), tracked here like
-any other template file. Refresh it by replacing its contents with a newer checkout of that
-repository; `lib/document-templates.ts` in the app only reads `new/<locale>/new.<type>` out of it.
+`templates/default/scripts/fetch-templates.mjs` is what makes the blank documents appear. It
+downloads `new.{docx,xlsx,pptx,pdf}` from the `main/default` branch of
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) over plain
+`fetch` (that branch has one file per format and no locale folders) into
+`document-templates/new/`, and is wired to the `predev` and `prestart` hooks of the template's
+`package.json`. It re-downloads nothing that is already on disk, writes through a `.download`
+temporary file so an interrupted run cannot leave a file that looks finished, and only warns on
+failure — the app must still start. `build` deliberately has no hook: a build does not need the
+documents.
 
 `templates/default/CLAUDE.md` is the exception: it ships with the template and is copied into the
 generated project, where it documents _that_ app. Keep it free of anything about this repository —
@@ -118,10 +124,9 @@ Key decisions worth knowing before editing:
   needed; it changes automatically after each save.
 - **Config** is read once by `lib/env.ts` (`loadEnv` / `requireEnv`); missing config surfaces as a
   503 `EnvError` through `lib/http.ts`'s `handleRoute` wrapper, which every API route uses.
-- **Blank documents** for "New document" come from
-  `document-templates/new/<locale>/new.{docx,xlsx,pptx,pdf}`, resolved by
-  `lib/document-templates.ts` (exact locale → language prefix → `default` → `en-US`). Only
-  "New document" depends on that folder.
+- **Blank documents** for "New document" come from `document-templates/new/new.<type>`, resolved
+  by `lib/document-templates.ts` — one file per format, no locales, downloaded by
+  `scripts/fetch-templates.mjs` before the app starts. Only "New document" depends on them.
 
 ## Release process
 

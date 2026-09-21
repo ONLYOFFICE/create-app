@@ -15,6 +15,7 @@ yarn-error.log*
 Thumbs.db
 
 # Local state of the template app when it is run in place
+/templates/default/document-templates/
 /templates/default/.next/
 /templates/default/out/
 /templates/default/.env

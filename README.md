@@ -14,8 +14,8 @@ The generated project is a small file manager built with **Next.js + React + Typ
 
 - lists, uploads, downloads and deletes files;
 - creates blank `docx`, `xlsx`, `pptx` and `pdf` files from
-  [ONLYOFFICE document templates](https://github.com/ONLYOFFICE/document-templates) (48 locales),
-  shipped with the project;
+  [ONLYOFFICE document templates](https://github.com/ONLYOFFICE/document-templates), downloaded
+  over HTTPS the first time the app starts;
 - asks the Document Server which formats it supports (`GET /meta/formats`) and opens each file
   either in the editor or, for read-only formats, in the viewer;
 - signs the editor configuration with JWT and verifies JWT on the save callback;
@@ -43,9 +43,11 @@ Equivalent invocations: `npm init @onlyoffice/app my-app`,
 `pnpm create @onlyoffice/app my-app`, `yarn create @onlyoffice/app my-app`.
 
 The scaffolder only copies files: it creates no git repository and downloads nothing besides the
-dependencies. The blank documents behind "New document"
-([ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates)) are part of the
-template and land in `document-templates/` of the new project.
+dependencies. The blank documents behind "New document" are fetched by the generated project
+itself — `scripts/fetch-templates.mjs` downloads them from
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) into
+`document-templates/` before `npm run dev` and `npm start`, and skips the download once they are
+there.
 
 ## Requirements
 
@@ -60,12 +62,13 @@ template and land in `document-templates/` of the new project.
 bin/create-app.js                 CLI entry point
 src/                              CLI implementation (plain ESM JavaScript, no build step)
 templates/default/                the demo application (a complete Next.js project)
-templates/default/document-templates/   blank documents behind "New document"
+templates/default/scripts/fetch-templates.mjs   downloads the blank documents before the app runs
 scripts/smoke-test.js             runs the CLI into a temp dir and checks the result
 ```
 
-This repository has no submodules: everything the generated project needs is a plain file of the
-template, so scaffolding works offline and without git.
+This repository has no submodules and the CLI never runs git: scaffolding is a file copy plus
+`npm install`. The blank documents are the app's own business — it downloads them over HTTPS on
+its first start.
 
 ## Development
 
@@ -98,9 +101,11 @@ npx ./onlyoffice-create-app-*.tgz my-app
 
 ### Updating the blank templates
 
-`templates/default/document-templates/` is a copy of
-[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates). To refresh it,
-replace its contents with a newer checkout of that repository and commit the result.
+There is nothing in this repository to bump: `templates/default/scripts/fetch-templates.mjs`
+always downloads the current state of the `main/default` branch of
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates). To pull newer
+files locally, delete `templates/default/document-templates/` and run
+`npm --prefix templates/default run fetch-templates`.
 
 ## License
 

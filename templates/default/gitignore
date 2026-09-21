@@ -25,6 +25,9 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# blank documents, downloaded by scripts/fetch-templates.mjs
+/document-templates/
+
 # uploaded documents
 /storage/*
 !/storage/.gitkeep

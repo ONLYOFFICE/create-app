@@ -32,7 +32,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
    | `DOCUMENT_SERVER_JWT_SECRET` | JWT secret of the Document Server (`JWT_SECRET` for Docker, `services.CoAuthoring.secret.*` in `local.json`). Leave empty only when JWT is disabled. |
    | `DOCUMENT_SERVER_JWT_HEADER` | Header the Document Server uses for JWT, `Authorization` by default. |
    | `APP_URL` | URL of **this app as seen from the Document Server**. The Document Server downloads files from here and posts save callbacks here. `http://localhost:3000` works only when both run on the same host without containers; otherwise use the LAN address of your machine, e.g. `http://192.168.1.10:3000`. |
-   | `DOCS_LANG` | Editor UI language and the locale of blank templates (`en-US`, `ru-RU`, `de-DE`, …). |
+   | `DOCS_LANG` | Editor UI language (`en-US`, `ru-RU`, `de-DE`, …). |
    | `DEMO_USER_ID`, `DEMO_USER_NAME` | The demo user the editor is opened as. |
    | `STORAGE_DIR` | Folder for uploaded documents, `storage` by default. |
    | `ALLOWED_DEV_ORIGINS` | Extra host names that may open the **development** server (`npm run dev`), comma-separated. The host of `APP_URL` is always allowed. In development Next.js refuses to serve its scripts to other origins, so a page opened by an unlisted LAN address renders without working buttons. |
@@ -44,6 +44,9 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
    npm run dev        # or: development server with hot reload
    ```
 
+   Both first download the blank documents for "New document" (see below); that needs a network
+   connection once.
+
    To use another port run `PORT=3001 npm start` (Windows: `set PORT=3001 && npm start`) and
    update `APP_URL` accordingly.
 
@@ -51,15 +54,22 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
 ## Blank documents
 
-The files behind "New document" live in `document-templates/` — a copy of
-[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) that ships with
-the project, one blank file per format in `new/<locale>/new.{docx,xlsx,pptx,pdf}`. `DOCS_LANG`
-picks the folder; the resolution order is the exact locale, then the same language prefix, then
-`default`, then `en-US`.
+The files behind "New document" are downloaded before the app starts, by
+`scripts/fetch-templates.mjs` (the `predev` and `prestart` hooks in `package.json`). They come
+over plain HTTPS — no git involved — from the `main/default` branch of
+[ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) and land in
+`document-templates/new/new.{docx,xlsx,pptx,pdf}`, one blank file per format.
 
-They are ordinary files: replace them to change what a new document looks like. If the folder is
-missing, "New document" reports that the templates are gone; nothing else in the application
-depends on them — uploading, opening, editing and saving work without it.
+Files that are already there are never downloaded again, so only the first start needs a network
+connection. To fetch them by hand, or to retry after a failed download:
+
+```bash
+npm run fetch-templates
+```
+
+Replace the downloaded files to change what a new document looks like — or delete one and let the
+script fetch it again. If they are missing, "New document" says so and nothing else is affected:
+uploading, opening, editing and saving work without them.
 
 ## How the integration works
 
@@ -82,7 +92,7 @@ this app ──(6) downloads the saved file ──────▶ Document Serve
 | File download for the Document Server and the user | `src/app/api/files/[name]/download/route.ts` |
 | Upload, create from template, delete | `src/app/api/files/**` |
 | Editor page (React component `@onlyoffice/document-editor-react`) | `src/components/Editor.tsx` |
-| Blank templates from [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) | `document-templates/new/<locale>/` |
+| Download of the blank templates from [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) | `scripts/fetch-templates.mjs` → `document-templates/new/` |
 
 ### Edit or view?
 

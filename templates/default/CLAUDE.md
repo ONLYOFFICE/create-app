@@ -21,6 +21,7 @@ framework, no state management library — documents live on the local file syst
 npm run dev        # development server with hot reload
 npm start          # next build && next start (production mode, one command on purpose)
 npm run build      # production build only
+npm run fetch-templates  # download the blank documents (runs itself before dev and start)
 npm run lint       # eslint (eslint-config-next)
 npm run typecheck  # tsc --noEmit
 ```
@@ -67,7 +68,8 @@ src/
 public/
   favicon.ico                     default tab icon, declared in app/layout.tsx
   favicons/<type>.ico             tab icon of the editor page, one per document type
-document-templates/               blank documents: new/<locale>/new.{docx,xlsx,pptx,pdf}
+scripts/fetch-templates.mjs       downloads the blank documents before dev/start
+document-templates/               the blank documents: new/new.{docx,xlsx,pptx,pdf} (git-ignored)
 storage/                          uploaded documents (git-ignored, except the README.md demo copy)
 ```
 
@@ -122,11 +124,13 @@ set `dynamic = 'force-dynamic'`.
   that maps a format's `actions` to behaviour: `edit` → editor, `lossy-edit` → editor plus a warning
   about possible formatting loss, `view` only → viewer, unknown → the file cannot be opened or
   uploaded.
-- **Blank documents** come from `document-templates/new/<locale>/new.<type>`, resolved by
-  `lib/document-templates.ts`: exact locale (`DOCS_LANG`) → same language prefix → `default` →
-  `en-US`. `document-templates/` is an ordinary folder of the project, a copy of
-  [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates); when it is
-  missing, only "New document" stops working.
+- **Blank documents** come from `document-templates/new/new.<type>` — one file per format, no
+  locales. `scripts/fetch-templates.mjs` downloads them over HTTPS (no git) from the
+  `main/default` branch of
+  [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates) and runs
+  through the `predev` / `prestart` hooks; it skips files that are already there and never fails
+  the start, because only "New document" depends on them. The folder is git-ignored, so do not
+  commit it or read it at build time.
 - **Server and client markup must match.** The file list is rendered on the server, so sizes use a
   fixed `en-US` formatter and dates go through `useSyncExternalStore` in `FileManager.tsx` (ISO on
   the server, local format after hydration). Any new locale- or time-dependent output needs the same

@@ -16,7 +16,7 @@ export type AppEnv = {
   jwtHeader: string;
   /** Public URL of this app as seen from the Document Server, or `null` to use the request origin. */
   appUrl: string | null;
-  /** Editor UI language and blank template locale. */
+  /** Editor UI language. */
   lang: string;
   user: { id: string; name: string };
   /** Absolute path of the folder with uploaded files. */

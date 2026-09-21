@@ -25,11 +25,14 @@ export const TEMPLATE_DIR = fileURLToPath(new URL('../templates/default/', impor
 /**
  * Paths (relative to the template root, POSIX separators) that must never be copied.
  * They only exist when the template has been run in place during development: dependencies, a
- * build, a real `.env`, uploaded documents. A `.git` is there only if somebody created one by
- * hand — a generated project is not a repository until the user makes it one.
+ * build, a real `.env`, uploaded documents and the blank documents that
+ * `scripts/fetch-templates.mjs` downloads before the app starts. A `.git` is there only if
+ * somebody created one by hand — a generated project is not a repository until the user makes
+ * it one.
  */
 const EXCLUDED = [
   /(^|\/)\.git(\/|$)/,
+  /^document-templates(\/|$)/,
   /^node_modules(\/|$)/,
   /^\.next(\/|$)/,
   /^out(\/|$)/,

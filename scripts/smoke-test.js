@@ -69,15 +69,25 @@ try {
     'src/app/api/editor-config/route.ts',
     'src/lib/editor-config.ts',
     'src/lib/jwt.ts',
+    'scripts/fetch-templates.mjs',
     'storage/.gitkeep',
     'storage/README.md',
   ];
   for (const file of mustExist) {
     assert.ok(existsSync(path.join(target, file)), `missing ${file}`);
   }
-  // Local state of the template must not leak into a generated project, and the CLI touches
-  // git in no way at all: no repository, no submodule.
-  const mustNotExist = ['gitignore', 'node_modules', '.next', 'next-env.d.ts', 'AGENTS.md', '.git'];
+  // Local state of the template must not leak into a generated project: that includes the
+  // blank documents, which the project downloads for itself before it starts. And the CLI
+  // touches git in no way at all — no repository.
+  const mustNotExist = [
+    'gitignore',
+    'node_modules',
+    '.next',
+    'next-env.d.ts',
+    'AGENTS.md',
+    'document-templates',
+    '.git',
+  ];
   for (const file of mustNotExist) {
     assert.ok(!existsSync(path.join(target, file)), `unexpected ${file}`);
   }
@@ -99,6 +109,7 @@ try {
 
   const gitignore = await fs.readFile(path.join(target, '.gitignore'), 'utf8');
   assert.match(gitignore, /^\.env$/m);
+  assert.match(gitignore, /^\/document-templates\/$/m);
   assert.match(gitignore, /^\/storage\/\*$/m);
 
   // Storage starts with the demo document and nothing else; local uploads must not leak into it.
