@@ -106,8 +106,3 @@ always downloads the current state of the `main/default` branch of
 [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates). To pull newer
 files locally, delete `templates/default/document-templates/` and run
 `npm --prefix templates/default run fetch-templates`.
-
-## License
-
-Apache-2.0. Blank document templates are © Ascensio System SIA, Apache-2.0,
-from [ONLYOFFICE/document-templates](https://github.com/ONLYOFFICE/document-templates).
