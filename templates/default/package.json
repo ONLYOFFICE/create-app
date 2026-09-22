@@ -1,0 +1,34 @@
+{
+  "name": "docs-integration-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo application integrating ONLYOFFICE Docs with Next.js",
+  "license": "Apache-2.0",
+  "scripts": {
+    "predev": "node scripts/fetch-templates.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "prestart": "node scripts/fetch-templates.mjs",
+    "start": "next build && next start",
+    "fetch-templates": "node scripts/fetch-templates.mjs",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@onlyoffice/doceditor-types": "^9.4.2",
+    "@onlyoffice/document-editor-react": "^2.2.0",
+    "jose": "^6.2.12",
+    "mime": "^4.1.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
+    "typescript": "^5"
+  }
+}

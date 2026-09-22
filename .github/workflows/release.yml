@@ -15,10 +15,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
-        with:
-          # The prepack hook copies blank documents from the
-          # vendor/document-templates submodule into the package.
-          submodules: true
       - name: Install NodeJS
         uses: actions/setup-node@v7
         with:

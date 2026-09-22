@@ -1,0 +1,66 @@
+{
+  "name": "@onlyoffice/create-app",
+  "version": "1.0.0",
+  "description": "Scaffold a demo application that integrates ONLYOFFICE Docs (Document Server) with Next.js",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ONLYOFFICE/create-app/issues",
+    "email": "support@onlyoffice.com"
+  },
+  "homepage": "https://github.com/ONLYOFFICE/create-app#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ONLYOFFICE/create-app.git"
+  },
+  "author": "Ascensio System SIA",
+  "maintainers": [
+    "Ascensio System SIA <integration@onlyoffice.com> (https://www.onlyoffice.com)"
+  ],
+  "keywords": [
+    "onlyoffice",
+    "document-server",
+    "docs",
+    "integration",
+    "create",
+    "scaffold",
+    "nextjs",
+    "office",
+    "docx",
+    "xlsx",
+    "pptx",
+    "pdf"
+  ],
+  "scripts": {
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "node scripts/smoke-test.js",
+    "template:install": "npm --prefix templates/default install",
+    "template:dev": "npm --prefix templates/default run dev",
+    "template:build": "npm --prefix templates/default run build"
+  },
+  "dependencies": {
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-license-header": "^0.9.0",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.6"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "create-app": "bin/create-app.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=20.12"
+  },
+  "type": "module"
+}

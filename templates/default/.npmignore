@@ -1,0 +1,20 @@
+# Local state of the template app when it is run in place during development.
+# npm applies this file because it lives in a subdirectory listed in the root "files" field.
+# document-templates/ is downloaded by scripts/fetch-templates.mjs, never published.
+document-templates/
+node_modules/
+.next/
+out/
+.env
+.env.local
+next-env.d.ts
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+bun.lock
+*.tsbuildinfo
+storage/*
+!storage/.gitkeep
+!storage/README.md
+AGENTS.md
