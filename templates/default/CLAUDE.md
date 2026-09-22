@@ -23,7 +23,8 @@ npm start          # next build && next start (production mode, one command on p
 npm run build      # production build only
 npm run fetch-templates  # download the blank documents (runs itself before dev and start)
 npm run lint       # eslint (eslint-config-next)
-npm run typecheck  # tsc --noEmit
+npm run typecheck  # next typegen && tsc --noEmit (typegen writes next-env.d.ts, which
+                   # declares the *.svg modules and is not committed)
 ```
 
 There are no tests in this project. After changing anything, `npm run lint && npm run typecheck` is
