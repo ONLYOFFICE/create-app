@@ -34,7 +34,7 @@ documents in the ONLYOFFICE editors.
 
 Options:
   --skip-install     do not install dependencies
-  --use-npm        install with npm  (default: the package manager that ran this command)
+  --use-npm          install with npm (default: the package manager that ran this command)
   --use-pnpm         install with pnpm
   --use-yarn         install with yarn
   --use-bun          install with bun
