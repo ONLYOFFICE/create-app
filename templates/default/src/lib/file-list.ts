@@ -1,6 +1,7 @@
-import { decideOpen, findFormat, getFormats } from './formats';
+import type { DocumentServerFormats } from '@onlyoffice/docs-integration-sdk';
+import { getDocumentServerFormats } from './formats';
 import { DocumentServerError } from './http';
-import { listFiles } from './storage';
+import { extOf, listFiles } from './storage';
 import type { FileListItem } from './types';
 
 export type FileListResult = {
@@ -13,22 +14,27 @@ export type FileListResult = {
 export async function describeFiles(): Promise<FileListResult> {
   const files = await listFiles();
 
+  let formats: DocumentServerFormats | null = null;
   let warning: string | undefined;
   try {
-    await getFormats();
+    formats = await getDocumentServerFormats();
   } catch (error) {
     warning = error instanceof DocumentServerError ? error.message : 'Cannot load the format list';
   }
 
   const items: FileListItem[] = [];
   for (const file of files) {
-    const format = warning ? null : await findFormat(file.name);
-    const decision = decideOpen(format);
+    const ext = extOf(file.name);
+    const lossy = formats?.isLossyEditable(ext) ?? false;
+    let mode: FileListItem['mode'] = null;
+    if (formats?.isEditable(ext) || lossy) mode = 'edit';
+    else if (formats?.isViewable(ext)) mode = 'view';
+
     items.push({
       ...file,
-      documentType: format?.type ?? null,
-      mode: decision?.mode ?? null,
-      lossy: decision?.lossy ?? false,
+      documentType: formats?.getDocumentType(ext),
+      mode,
+      lossy,
     });
   }
   return { files: items, warning };

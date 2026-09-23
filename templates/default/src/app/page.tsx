@@ -1,6 +1,6 @@
 import { loadEnv } from '@/lib/env';
 import { describeFiles } from '@/lib/file-list';
-import { acceptList, getFormats } from '@/lib/formats';
+import { getDocumentServerFormats } from '@/lib/formats';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { FileManager } from '@/components/FileManager';
 import styles from './page.module.css';
@@ -31,7 +31,9 @@ export default async function HomePage() {
   }
 
   const { files, warning } = await describeFiles();
-  const accept = warning ? undefined : acceptList(await getFormats());
+  const accept = warning
+    ? undefined
+    : (await getDocumentServerFormats()).getExtensions().map((ext) => `.${ext}`).join(',');
 
   return (
     <main className={styles.page}>

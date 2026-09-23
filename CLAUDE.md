@@ -115,8 +115,10 @@ Data flow of the integration:
 Key decisions worth knowing before editing:
 
 - **Formats come from the server.** `lib/formats.ts` fetches `GET <server>/meta/formats`
-  (cached, falls back to `lib/fallback-formats.json` on 404). `decideOpen()` maps the format's
-  `actions` (`edit` / `lossy-edit` / `view`) to editor mode; unknown formats cannot be uploaded.
+  (cached, falls back to `lib/fallback-formats.json` on 404) and wraps it in the SDK's
+  `DocumentServerFormats`, whose `isEditable` / `isLossyEditable` / `isViewable` map the format's
+  `actions` to editor mode in `lib/editor-config.ts` and `lib/file-list.ts`; unknown formats cannot
+  be uploaded.
 - **Two Document Server URLs.** `DOCUMENT_SERVER_URL` is what the browser uses;
   `DOCUMENT_SERVER_INTERNAL_URL` is what the app uses server-side (Docker networks). The callback
   handler rewrites the download URL prefix accordingly.

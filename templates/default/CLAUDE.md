@@ -121,10 +121,13 @@ set `dynamic = 'force-dynamic'`.
   make the editor show a stale document after a save.
 - **The list of formats comes from the Document Server**, not from a hard-coded table:
   `lib/formats.ts` fetches `GET <server>/meta/formats` (cached for 10 minutes, falls back to
-  `lib/fallback-formats.json` only if the endpoint returns 404). `decideOpen()` is the single place
-  that maps a format's `actions` to behaviour: `edit` → editor, `lossy-edit` → editor plus a warning
-  about possible formatting loss, `view` only → viewer, unknown → the file cannot be opened or
-  uploaded.
+  `lib/fallback-formats.json` only if the endpoint returns 404). `getDocumentServerFormats()` wraps
+  the list in the SDK's `DocumentServerFormats`, whose `isEditable` / `isLossyEditable` /
+  `isViewable` / `isOpenable` map a format's `actions` to behaviour: `edit` → editor, `lossy-edit` →
+  editor plus a warning about possible formatting loss, `view` only → viewer, unknown → the file
+  cannot be opened or uploaded. The mapping is applied in two places that must agree:
+  `lib/editor-config.ts` (the editor mode) and `lib/file-list.ts` (the badge and button in the file
+  list).
 - **Blank documents** come from `document-templates/new/new.<type>` — one file per format, no
   locales. `scripts/fetch-templates.mjs` downloads them over HTTPS (no git) from the
   `main/default` branch of
@@ -142,7 +145,7 @@ set `dynamic = 'force-dynamic'`.
 | Task | File |
 | --- | --- |
 | Editor options: permissions, `customization`, UI language, user | `src/lib/editor-config.ts` |
-| Which formats open for editing vs. viewing | `decideOpen()` in `src/lib/formats.ts` |
+| Which formats open for editing vs. viewing | `src/lib/editor-config.ts` + `src/lib/file-list.ts` |
 | What happens when a document is saved | `src/app/api/callback/route.ts` |
 | Storing files somewhere other than the local disk | `src/lib/storage.ts` (keep the function signatures) |
 | Upload, create-from-template, delete endpoints | `src/app/api/files/**` |

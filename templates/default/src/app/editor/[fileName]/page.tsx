@@ -3,10 +3,9 @@ import { notFound } from 'next/navigation';
 import { Editor } from '@/components/Editor';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { loadEnv } from '@/lib/env';
-import { findFormat } from '@/lib/formats';
+import {  getDocumentServerFormats } from '@/lib/formats';
 import { HttpError } from '@/lib/http';
-import { safeName, statFile } from '@/lib/storage';
-import type { DocumentType } from '@/lib/types';
+import { extOf, safeName, statFile } from '@/lib/storage';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +25,7 @@ function decodeName(raw: string): string | null {
  * The files live in `public/favicons`; every other page keeps the default icon of
  * `app/layout.tsx`.
  */
-const FAVICONS: Record<DocumentType, string> = {
+const FAVICONS: Record<string, string> = {
   word: '/favicons/word.ico',
   cell: '/favicons/cell.ico',
   slide: '/favicons/slide.ico',
@@ -37,8 +36,10 @@ const FAVICONS: Record<DocumentType, string> = {
 /** The document type comes from the Document Server; if it is unreachable, there is no icon. */
 async function faviconFor(fileName: string): Promise<string | null> {
   try {
-    const format = await findFormat(fileName);
-    return format ? FAVICONS[format.type] : null;
+    const formats = await getDocumentServerFormats();
+    const type = formats.getDocumentType(extOf(fileName));
+
+    return type ? FAVICONS[type] : null;
   } catch {
     return null;
   }

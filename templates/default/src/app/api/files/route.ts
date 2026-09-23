@@ -3,9 +3,9 @@
  * POST /api/files  → upload one or more files (multipart/form-data, field "files")
  */
 import { describeFiles } from '@/lib/file-list';
-import { decideOpen, findFormat } from '@/lib/formats';
+import { getDocumentServerFormats } from '@/lib/formats';
 import { BadRequest, handleRoute } from '@/lib/http';
-import { safeName, uniqueName, writeFileAtomic } from '@/lib/storage';
+import { extOf, safeName, uniqueName, writeFileAtomic } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -32,7 +32,9 @@ export const POST = handleRoute(async (request) => {
     // Only accept what the Document Server can at least display.
     let supported = true;
     try {
-      supported = decideOpen(await findFormat(name)) !== null;
+      const extension = extOf(name);
+      const formats = await getDocumentServerFormats();
+      supported = formats.isOpenable(extension);
     } catch {
       // Format list unavailable: accept the upload, the UI will mark it as "unsupported" if needed.
     }

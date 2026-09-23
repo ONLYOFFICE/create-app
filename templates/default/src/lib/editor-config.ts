@@ -4,22 +4,21 @@
  *
  * This runs on the server only: the JWT secret must never reach the browser.
  */
-import type { Config, FileType, Lang, Region } from '@onlyoffice/doceditor-types';
+import type { Config, DocumentType, FileType, Lang, Region } from '@onlyoffice/doceditor-types';
 import { requireEnv } from './env';
 import { documentKey } from './document-key';
-import { decideOpen, findFormat } from './formats';
+import { getDocumentServerFormats } from './formats';
 import { BadRequest } from './http';
 import { signPayload } from './jwt';
 import { isLoopbackHost, publicBaseUrl } from './public-url';
 import { extOf, safeName, statFile } from './storage';
-import type { OpenDecision } from './types';
 
 export type EditorSession = {
   /** Editor config, signed when JWT is enabled. */
   config: Config;
   /** Document Server URL for the browser (where api.js is loaded from). */
   documentServerUrl: string;
-  decision: NonNullable<OpenDecision>;
+  isLossyEditable: boolean;
   /** Non-fatal hints for the developer, shown above the editor. */
   warnings: string[];
 };
@@ -45,21 +44,23 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
   const env = requireEnv();
   const name = safeName(fileName);
   const info = await statFile(name);
+  const extension = extOf(name);
 
-  const format = await findFormat(name);
-  const decision = decideOpen(format);
-  if (!format || !decision) {
-    throw new BadRequest(`Files of type ".${extOf(name)}" cannot be opened by the Document Server`);
+  const formats = await getDocumentServerFormats();
+
+  if (!formats.isOpenable(extension)) {
+    throw new BadRequest(`Files of type ".${extension}" cannot be opened by the Document Server`);
   }
 
   const baseUrl = publicBaseUrl(request, env);
   const encodedName = encodeURIComponent(name);
   const { lang, region } = editorLocale(env.lang);
-  const canEdit = decision.mode === 'edit';
+  const canLossyEdit = formats.isLossyEditable(extension)
+  const canEdit = formats.isEditable(extension) || canLossyEdit;
 
   const config: Config = {
     type: 'desktop',
-    documentType: format.type,
+    documentType: formats.getDocumentType(extension) as DocumentType,
     document: {
       fileType: extOf(name) as FileType,
       key: documentKey(name, info.mtimeMs, info.size),
@@ -68,10 +69,10 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
       url: `${baseUrl}/api/files/${encodedName}/download`,
       permissions: {
         edit: canEdit,
-        review: canEdit && format.actions.includes('review'),
-        comment: canEdit && format.actions.includes('comment'),
-        fillForms: canEdit && format.actions.includes('fill'),
-        modifyFilter: canEdit && format.actions.includes('customfilter'),
+        review: canEdit && formats.isReviewable(extension),
+        comment: canEdit && formats.isCommentable(extension),
+        fillForms: canEdit && formats.isFillable(extension),
+        modifyFilter: canEdit && formats.can(extension, "customfilter"),
         download: true,
         print: true,
         copy: true,
@@ -80,7 +81,7 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
     editorConfig: {
       // The Document Server posts editing events and the saved document here.
       callbackUrl: `${baseUrl}/api/callback?file=${encodedName}`,
-      mode: decision.mode,
+      mode: formats.isEditable(extension) || formats.isLossyEditable(extension) ? "edit" : "view",
       lang,
       region,
       user: { id: env.user.id, name: env.user.name },
@@ -114,5 +115,5 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
     );
   }
 
-  return { config, documentServerUrl: env.documentServerUrl, decision, warnings };
+  return { config, documentServerUrl: env.documentServerUrl, isLossyEditable: canLossyEdit, warnings };
 }

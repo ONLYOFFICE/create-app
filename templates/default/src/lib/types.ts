@@ -1,34 +1,6 @@
-/** Entry of the Document Server `/meta/formats` response. */
-export type FormatAction =
-  | 'view'
-  | 'edit'
-  | 'lossy-edit'
-  | 'fill'
-  | 'comment'
-  | 'review'
-  | 'customfilter'
-  | 'encrypt'
-  | 'auto-convert';
-
-export type DocumentType = 'word' | 'cell' | 'slide' | 'pdf' | 'diagram';
-
-export type Format = {
-  /** File extension without a dot, lower case. */
-  name: string;
-  type: DocumentType;
-  actions: FormatAction[];
-  convert: string[];
-  mime: string[];
-};
+import type { FormatType } from "@onlyoffice/docs-integration-sdk";
 
 export type EditorMode = 'edit' | 'view';
-
-/** How a file can be opened in the editor, or `null` if the format is not supported. */
-export type OpenDecision = {
-  mode: EditorMode;
-  /** `true` for formats the Document Server can edit only with possible loss of formatting. */
-  lossy: boolean;
-} | null;
 
 /** Blank templates that can be created from `document-templates/new/<locale>/new.<type>`. */
 export type TemplateType = 'docx' | 'xlsx' | 'pptx' | 'pdf';
@@ -43,7 +15,7 @@ export type FileInfo = {
 
 /** File entry enriched with format information for the UI. */
 export type FileListItem = FileInfo & {
-  documentType: DocumentType | null;
+  documentType: FormatType | undefined;
   mode: EditorMode | null;
   lossy: boolean;
 };

@@ -3,7 +3,6 @@
 import type { Config } from '@onlyoffice/doceditor-types';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import type { EditorMode } from '@/lib/types';
 import styles from './Editor.module.css';
 
 // The component injects <script src="<documentServerUrl>/web-apps/apps/api/documents/api.js">
@@ -16,7 +15,7 @@ const DocumentEditor = dynamic(
 type Session = {
   config: Config;
   documentServerUrl: string;
-  decision: { mode: EditorMode; lossy: boolean };
+  isLossyEditable: boolean;
   warnings: string[];
 };
 
@@ -65,7 +64,7 @@ export function Editor({ fileName }: { fileName: string }) {
 
   const { session } = state;
   const hints = [...session.warnings];
-  if (session.decision.lossy) {
+  if (session.isLossyEditable) {
     hints.push(
       'This format is edited with possible loss of formatting: the Document Server converts it to an OOXML format while editing and back on save.',
     );

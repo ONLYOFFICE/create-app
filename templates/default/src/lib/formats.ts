@@ -5,28 +5,18 @@
  * actions are possible (view, edit, lossy-edit, fill, …). It is cached for a few minutes.
  * If the endpoint is unavailable (very old Document Server) a small built-in list is used.
  */
-import { DocumentServerHttpError } from '@onlyoffice/docs-integration-sdk';
+import { DocumentServerFormats, DocumentServerHttpError, type Format } from '@onlyoffice/docs-integration-sdk';
 import { callDocumentServer } from './document-server';
 import { DocumentServerError } from './http';
-import { extOf } from './storage';
-import type { Format, OpenDecision } from './types';
 import fallbackFormats from './fallback-formats.json';
 
 const CACHE_TTL_MS = 10 * 60 * 1000;
 const REQUEST_TIMEOUT_MS = 5000;
 
-type Cache = { fetchedAt: number; list: Format[]; byExt: Map<string, Format> };
+type Cache = { fetchedAt: number; list: readonly Format[] };
 
 let cache: Cache | null = null;
 let inflight: Promise<Cache> | null = null;
-
-function index(list: Format[], fetchedAt = Date.now()): Cache {
-  return {
-    fetchedAt,
-    list,
-    byExt: new Map(list.map((format) => [format.name.toLowerCase(), format])),
-  };
-}
 
 async function fetchFormats(): Promise<Cache> {
   const list = await callDocumentServer((client) =>
@@ -38,12 +28,12 @@ async function fetchFormats(): Promise<Cache> {
   );
   if (list === null) {
     console.warn('[formats] /meta/formats returned 404, using the built-in format list');
-    return index(fallbackFormats as Format[]);
+    return { fetchedAt: Date.now(), list: fallbackFormats };
   }
   if (list.length === 0) {
     throw new DocumentServerError('/meta/formats returned an empty format list');
   }
-  return index(list as Format[]);
+  return { fetchedAt: Date.now(), list };
 }
 
 async function getCache(): Promise<Cache> {
@@ -62,33 +52,15 @@ async function getCache(): Promise<Cache> {
 }
 
 /** All formats known to the Document Server. */
-export async function getFormats(): Promise<Format[]> {
+export async function getFormats(): Promise<readonly Format[]> {
   return (await getCache()).list;
 }
 
-/** Format of a file by its extension, or `null` if the Document Server does not know it. */
-export async function findFormat(fileName: string): Promise<Format | null> {
-  const ext = extOf(fileName);
-  if (!ext) return null;
-  return (await getCache()).byExt.get(ext) ?? null;
-}
-
 /**
- * Decides how a file can be opened:
- * - `edit`       → full editing;
- * - `lossy-edit` → editing is possible but the format cannot keep every feature
- *                  (the UI warns about it);
- * - `view` only  → read-only viewer;
- * - not supported → `null`.
+ * The cached formats indexed by extension, which is how the SDK looks them up: what a file
+ * opens in, what the editors may do with it, what it converts to.
  */
-export function decideOpen(format: Format | null): OpenDecision {
-  if (!format || !format.actions.includes('view')) return null;
-  if (format.actions.includes('edit')) return { mode: 'edit', lossy: false };
-  if (format.actions.includes('lossy-edit')) return { mode: 'edit', lossy: true };
-  return { mode: 'view', lossy: false };
+export async function getDocumentServerFormats(): Promise<DocumentServerFormats> {
+  return new DocumentServerFormats((await getCache()).list);
 }
 
-/** Extensions accepted by the upload control, e.g. `.docx,.xlsx,…`. */
-export function acceptList(formats: Format[]): string {
-  return formats.map((format) => `.${format.name}`).join(',');
-}
