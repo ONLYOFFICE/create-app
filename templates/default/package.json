@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@onlyoffice/doceditor-types": "^9.4.2",
+    "@onlyoffice/docs-integration-sdk": "file:../../../../SDK/docs-integration-sdk-typescript/onlyoffice-docs-integration-sdk-0.1.0.tgz",
     "@onlyoffice/document-editor-react": "^2.2.0",
     "jose": "^6.2.12",
     "mime": "^4.1.0",

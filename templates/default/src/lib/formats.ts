@@ -5,7 +5,8 @@
  * actions are possible (view, edit, lossy-edit, fill, …). It is cached for a few minutes.
  * If the endpoint is unavailable (very old Document Server) a small built-in list is used.
  */
-import { requireEnv } from './env';
+import { DocumentServerHttpError } from '@onlyoffice/docs-integration-sdk';
+import { callDocumentServer } from './document-server';
 import { DocumentServerError } from './http';
 import { extOf } from './storage';
 import type { Format, OpenDecision } from './types';
@@ -28,29 +29,21 @@ function index(list: Format[], fetchedAt = Date.now()): Cache {
 }
 
 async function fetchFormats(): Promise<Cache> {
-  const { documentServerInternalUrl } = requireEnv();
-  const url = `${documentServerInternalUrl}/meta/formats`;
-  let response: Response;
-  try {
-    response = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS), cache: 'no-store' });
-  } catch (error) {
-    throw new DocumentServerError(
-      `Cannot reach the Document Server at ${documentServerInternalUrl} (${(error as Error).message})`,
-    );
-  }
-  if (response.status === 404) {
-    // Older Document Server without /meta/formats: fall back to the bundled list.
-    console.warn(`[formats] ${url} returned 404, using the built-in format list`);
+  const list = await callDocumentServer((client) =>
+    client.getFormats({ timeoutMs: REQUEST_TIMEOUT_MS }).catch((error: unknown) => {
+      // Older Document Server without /meta/formats: fall back to the bundled list.
+      if (DocumentServerHttpError.is(error) && error.status === 404) return null;
+      throw error;
+    }),
+  );
+  if (list === null) {
+    console.warn('[formats] /meta/formats returned 404, using the built-in format list');
     return index(fallbackFormats as Format[]);
   }
-  if (!response.ok) {
-    throw new DocumentServerError(`GET ${url} responded with HTTP ${response.status}`);
+  if (list.length === 0) {
+    throw new DocumentServerError('/meta/formats returned an empty format list');
   }
-  const list = (await response.json()) as Format[];
-  if (!Array.isArray(list) || list.length === 0) {
-    throw new DocumentServerError(`GET ${url} returned an unexpected response`);
-  }
-  return index(list);
+  return index(list as Format[]);
 }
 
 async function getCache(): Promise<Cache> {
