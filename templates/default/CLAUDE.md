@@ -97,8 +97,10 @@ set `dynamic = 'force-dynamic'`.
 3. The Document Server downloads the file from `/api/files/[name]/download`
    (`document.url` in the config, base address from `lib/public-url.ts`).
 4. The Document Server posts events to `/api/callback?file=`. On status `2` (everyone closed the
-   document) or `6` (force save) the handler downloads the saved file and writes it over the old
-   one. The handler must answer `{"error": 0}` — anything else makes the editor report a failure.
+   document) or `6` (force save) the handler downloads the saved file with the SDK's `getFile()`
+   and writes it over the old one. The SDK's `splitFileUrl()` takes the public address off the
+   callback `url`, and the rest is sent to `DOCUMENT_SERVER_INTERNAL_URL`. The handler must answer
+   `{"error": 0}` — anything else makes the editor report a failure.
 
 ### Rules the code relies on
 

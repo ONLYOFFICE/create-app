@@ -13,7 +13,9 @@
  *
  * The handler must reply `{"error": 0}`; anything else makes the editor show an error.
  */
+import { splitFileUrl, type FileLocation } from '@onlyoffice/docs-integration-sdk';
 import type { AppEnv } from '@/lib/env';
+import { callDocumentServer } from '@/lib/document-server';
 import { requireEnv } from '@/lib/env';
 import { BadRequest, DocumentServerError, handleRoute, HttpError } from '@/lib/http';
 import { verifyCallbackBody } from '@/lib/jwt';
@@ -23,32 +25,25 @@ import type { CallbackBody } from '@/lib/types';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const DOWNLOAD_TIMEOUT_MS = 60_000;
-
 /**
- * The `url` in the callback points at the Document Server as the browser knows it. When the
- * app talks to the Document Server through a different address (Docker), swap the prefix.
+ * The `url` in the callback is written against the public address (`DOCUMENT_SERVER_URL`),
+ * path included, while the app downloads through `DOCUMENT_SERVER_INTERNAL_URL`. The SDK's
+ * `splitFileUrl()` takes the public path off and leaves what `getFile()` sends there.
  */
-function internalDocumentServerUrl(url: string, env: AppEnv): string {
-  if (env.documentServerInternalUrl !== env.documentServerUrl && url.startsWith(`${env.documentServerUrl}/`)) {
-    return env.documentServerInternalUrl + url.slice(env.documentServerUrl.length);
+function documentServerPath(url: string, env: AppEnv): FileLocation {
+  try {
+    return splitFileUrl(url, env.documentServerUrl);
+  } catch {
+    throw new BadRequest(`Callback "url" is not a valid URL: ${url}`);
   }
-  return url;
 }
 
 async function saveDocument(fileName: string, body: CallbackBody, env: AppEnv): Promise<void> {
   if (!body.url) throw new BadRequest('Callback with status 2/6 has no "url"');
-  const source = internalDocumentServerUrl(body.url, env);
+  const { path, query } = documentServerPath(body.url, env);
 
-  let response: Response;
-  try {
-    response = await fetch(source, { signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) });
-  } catch (error) {
-    throw new DocumentServerError(`Cannot download the saved document from ${source}: ${(error as Error).message}`);
-  }
-  if (!response.ok || !response.body) {
-    throw new DocumentServerError(`Download of the saved document failed with HTTP ${response.status}`);
-  }
+  const response = await callDocumentServer((client) => client.getFile(path, query));
+  if (!response.body) throw new DocumentServerError('The Document Server answered the download with no body');
 
   await writeFileAtomic(fileName, response.body);
 }
