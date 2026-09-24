@@ -17,17 +17,3 @@ export type FileListItem = FileInfo & {
   permissionEdit: boolean;
   lossy: boolean;
 };
-
-/** Body of the POST request the Document Server sends to `callbackUrl`. */
-export type CallbackBody = {
-  key: string;
-  status: 1 | 2 | 3 | 4 | 6 | 7;
-  url?: string;
-  changesurl?: string;
-  filetype?: string;
-  forcesavetype?: number;
-  users?: string[];
-  actions?: { type: number; userid: string }[];
-  history?: unknown;
-  token?: string;
-};

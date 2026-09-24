@@ -11,19 +11,45 @@
  * status 6 – the document is being edited, but the current state is saved (force save)
  * status 7 – force-saving error
  *
- * The handler must reply `{"error": 0}`; anything else makes the editor show an error.
+ * The SDK's `DocumentServerCallback` checks the JWT, tells the statuses apart and answers
+ * `{"error": 0}` once the handler is done, or `{"error": 1}` when it failed, so the Document
+ * Server posts the callback again.
  */
-import { splitFileUrl, type FileLocation } from '@onlyoffice/docs-integration-sdk';
+import {
+  CallbackError,
+  DocumentServerCallback,
+  DocumentServerJwt,
+  splitFileUrl,
+  type CallbackEvent,
+  type CallbackForcesave,
+  type CallbackSave,
+  type FileLocation,
+} from '@onlyoffice/docs-integration-sdk';
 import type { AppEnv } from '@/lib/env';
 import { callDocumentServer } from '@/lib/document-server';
 import { requireEnv } from '@/lib/env';
-import { BadRequest, DocumentServerError, handleRoute, HttpError } from '@/lib/http';
-import { verifyCallbackBody } from '@/lib/jwt';
+import { BadRequest, DocumentServerError, handleRoute, Unauthorized } from '@/lib/http';
 import { safeName, writeFileAtomic } from '@/lib/storage';
-import type { CallbackBody } from '@/lib/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+/**
+ * Reads the callback. With JWT enabled the decoded token is the source of truth, not the plain
+ * JSON body; a callback that cannot be trusted is refused with 403, a malformed one with 400.
+ */
+async function readCallback(request: Request, env: AppEnv): Promise<DocumentServerCallback> {
+  try {
+    return await DocumentServerCallback.fromRequest(request, {
+      verifier: env.jwtSecret ? new DocumentServerJwt({ secret: env.jwtSecret }) : null,
+      authorizationHeader: env.jwtHeader,
+    });
+  } catch (error) {
+    if (!CallbackError.is(error)) throw error;
+    if (error.kind === 'body') throw new BadRequest(`Invalid callback: ${error.message}`);
+    throw new Unauthorized(`Invalid JWT: ${error.message}`);
+  }
+}
 
 /**
  * The `url` in the callback is written against the public address (`DOCUMENT_SERVER_URL`),
@@ -38,53 +64,49 @@ function documentServerPath(url: string, env: AppEnv): FileLocation {
   }
 }
 
-async function saveDocument(fileName: string, body: CallbackBody, env: AppEnv): Promise<void> {
-  if (!body.url) throw new BadRequest('Callback with status 2/6 has no "url"');
-  const { path, query } = documentServerPath(body.url, env);
+async function saveDocument(
+  fileName: string,
+  event: CallbackSave | CallbackForcesave,
+  env: AppEnv,
+) {
+  const { path, query } = documentServerPath(event.url, env);
 
   const response = await callDocumentServer((client) => client.getFile(path, query));
-  if (!response.body) throw new DocumentServerError('The Document Server answered the download with no body');
+  if (!response.body)
+    throw new DocumentServerError('The Document Server answered the download with no body');
 
   await writeFileAtomic(fileName, response.body);
+  console.log(
+    `[callback] ${fileName}: saved (${event.kind === 'forcesave' ? 'force save' : 'closed'}, users: ${event.users?.join(', ') ?? '-'})`,
+  );
 }
 
 export const POST = handleRoute(async (request) => {
   const env = requireEnv();
   const fileName = safeName(new URL(request.url).searchParams.get('file') ?? '');
+  const callback = await readCallback(request, env);
 
-  const rawBody = (await request.json().catch(() => null)) as CallbackBody | null;
-  if (!rawBody || typeof rawBody !== 'object') throw new BadRequest('Callback body must be JSON');
+  const reply = await callback.handle(
+    {
+      editing: (event) =>
+        console.log(`[callback] ${fileName}: editing (users: ${event.users?.join(', ') ?? '-'})`),
+      save: (event) => saveDocument(fileName, event, env),
+      forcesave: (event) => saveDocument(fileName, event, env),
+      'save-error': (event) =>
+        console.error(`[callback] ${fileName}: the Document Server reported a saving error`, event),
+      'forcesave-error': (event) =>
+        console.error(
+          `[callback] ${fileName}: the Document Server reported a force-saving error`,
+          event,
+        ),
+      closed: () => console.log(`[callback] ${fileName}: closed without changes`),
+      unknown: (event) => console.warn(`[callback] ${fileName}: unknown status`, event),
+    },
+    {
+      onError: (error: unknown, event: CallbackEvent) =>
+        console.error(`[callback] ${fileName}: failed to process status ${event.status}`, error),
+    },
+  );
 
-  // With JWT enabled the decoded token is the source of truth, not the plain JSON body.
-  const body = await verifyCallbackBody(request, rawBody, env);
-
-  try {
-    switch (body.status) {
-      case 1:
-        console.log(`[callback] ${fileName}: editing (users: ${body.users?.join(', ') ?? '-'})`);
-        break;
-      case 2:
-      case 6:
-        await saveDocument(fileName, body, env);
-        console.log(
-          `[callback] ${fileName}: saved (${body.status === 6 ? 'force save' : 'closed'}, users: ${body.users?.join(', ') ?? '-'})`,
-        );
-        break;
-      case 3:
-      case 7:
-        console.error(`[callback] ${fileName}: the Document Server reported a saving error`, body);
-        break;
-      case 4:
-        console.log(`[callback] ${fileName}: closed without changes`);
-        break;
-      default:
-        console.warn(`[callback] ${fileName}: unknown status`, body);
-    }
-  } catch (error) {
-    console.error(`[callback] ${fileName}: failed to process status ${body.status}`, error);
-    const status = error instanceof HttpError ? error.status : 500;
-    return Response.json({ error: 1, message: (error as Error).message }, { status });
-  }
-
-  return Response.json({ error: 0 });
+  return Response.json(reply);
 });

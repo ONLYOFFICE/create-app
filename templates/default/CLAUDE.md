@@ -96,19 +96,23 @@ set `dynamic = 'force-dynamic'`.
    editor iframe — that is why it is imported with `dynamic(..., { ssr: false })`.
 3. The Document Server downloads the file from `/api/files/[name]/download`
    (`document.url` in the config, base address from `lib/public-url.ts`).
-4. The Document Server posts events to `/api/callback?file=`. On status `2` (everyone closed the
-   document) or `6` (force save) the handler downloads the saved file with the SDK's `getFile()`
-   and writes it over the old one. The SDK's `splitFileUrl()` takes the public address off the
-   callback `url`, and the rest is sent to `DOCUMENT_SERVER_INTERNAL_URL`. The handler must answer
-   `{"error": 0}` — anything else makes the editor report a failure.
+4. The Document Server posts events to `/api/callback?file=`. The SDK's `DocumentServerCallback`
+   checks the JWT (in the body or in `DOCUMENT_SERVER_JWT_HEADER`) and tells the statuses apart. On
+   status `2` (everyone closed the document) or `6` (force save) the handler downloads the saved
+   file with the SDK's `getFile()` and writes it over the old one. The SDK's `splitFileUrl()` takes
+   the public address off the callback `url`, and the rest is sent to
+   `DOCUMENT_SERVER_INTERNAL_URL`. The handler must answer `{"error": 0}` — anything else makes the
+   editor report a failure; `DocumentServerCallback.handle()` answers `{"error": 1}` when a handler
+   throws, so the Document Server posts the callback again.
 
 ### Rules the code relies on
 
 - **Errors are thrown, not returned.** Every route is wrapped in `handleRoute` (`lib/http.ts`) and
   throws `BadRequest` / `Unauthorized` (403) / `NotFound` / `EnvError` (503) /
   `DocumentServerError` (502); the wrapper turns them into `{ error: string }` with the right
-  status. The callback route is the exception — it catches internally because of the `{"error": 0}`
-  contract above.
+  status. The callback route is the exception once the callback is read: a failure while
+  handling it becomes the `{"error": 1}` of `DocumentServerCallback.handle()` because of the
+  `{"error": 0}` contract above.
 - **Settings are read only through `lib/env.ts`** (`loadEnv()` in pages, `requireEnv()` in routes).
   Do not read `process.env` anywhere else; `next.config.ts` is the only exception, because it runs
   before the app does.
