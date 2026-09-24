@@ -4,7 +4,8 @@
  *
  * This runs on the server only: the JWT secret must never reach the browser.
  */
-import type { Config, DocumentType, FileType, Lang, Region } from '@onlyoffice/doceditor-types';
+import type { Config, Lang, Region } from '@onlyoffice/doceditor-types';
+import { ConfigError, DocumentServerConfig, type ConfigInput } from '@onlyoffice/docs-integration-sdk';
 import { requireEnv } from './env';
 import { documentKey } from './document-key';
 import { getDocumentServerFormats } from './formats';
@@ -47,32 +48,20 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
   const extension = extOf(name);
 
   const formats = await getDocumentServerFormats();
-
-  if (!formats.isOpenable(extension)) {
-    throw new BadRequest(`Files of type ".${extension}" cannot be opened by the Document Server`);
-  }
-
   const baseUrl = publicBaseUrl(request, env);
   const encodedName = encodeURIComponent(name);
   const { lang, region } = editorLocale(env.lang);
-  const canLossyEdit = formats.isLossyEditable(extension);
-  const canEdit = formats.isEditable(extension) || canLossyEdit;
 
-  const config: Config = {
+  const input: ConfigInput = {
     type: 'desktop',
-    documentType: formats.getDocumentType(extension) as DocumentType,
     document: {
-      fileType: extOf(name) as FileType,
       key: documentKey(name, info.mtimeMs, info.size),
       title: name,
-      // The Document Server downloads the file from here.
       url: `${baseUrl}/api/files/${encodedName}/download`,
-      permissions: {
-        edit: canEdit,
-      },
+      permissions: { edit: true },
     },
     editorConfig: {
-      callbackUrl: canEdit ? `${baseUrl}/api/callback?file=${encodedName}` : undefined,
+      callbackUrl: `${baseUrl}/api/callback?file=${encodedName}`,
       mode: 'edit',
       lang,
       region,
@@ -88,9 +77,22 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
     },
   };
 
-  if (env.jwtSecret) {
-    config.token = await signPayload(config, env.jwtSecret);
+  let editor: DocumentServerConfig;
+  try {
+    editor = new DocumentServerConfig(input, formats);
+  } catch (error) {
+    if (!ConfigError.is(error)) throw error;
+    throw new BadRequest(
+      error.kind === 'unsupported'
+        ? `Files of type ".${extension}" cannot be opened by the Document Server`
+        : error.message,
+    );
   }
+
+  const { jwtSecret } = env;
+  const config: Config = jwtSecret
+    ? await editor.sign({ sign: (payload) => signPayload(payload, jwtSecret) })
+    : editor.config;
 
   const warnings: string[] = [];
   if (!env.appUrl && isLoopbackHost(baseUrl)) {
@@ -107,5 +109,5 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
     );
   }
 
-  return { config, documentServerUrl: env.documentServerUrl, isLossyEditable: canLossyEdit, warnings };
+  return { config, documentServerUrl: env.documentServerUrl, isLossyEditable: formats.isLossyEditable(extension), warnings };
 }

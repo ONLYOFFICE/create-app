@@ -126,8 +126,9 @@ set `dynamic = 'force-dynamic'`.
   `isViewable` / `isOpenable` map a format's `actions` to behaviour: `edit` → editor, `lossy-edit` →
   editor plus a warning about possible formatting loss, `view` only → viewer, unknown → the file
   cannot be opened or uploaded. The mapping is applied in two places that must agree:
-  `lib/editor-config.ts` (the editor mode) and `lib/file-list.ts` (the badge and button in the file
-  list).
+  `lib/editor-config.ts`, where the SDK's `DocumentServerConfig` takes `permissions.edit: true`
+  and lowers it to `false` for a format without `edit` / `lossy-edit` (dropping `callbackUrl`
+  along with it), and `lib/file-list.ts` (the badge and button in the file list).
 - **Blank documents** come from `document-templates/new/new.<type>` — one file per format, no
   locales. `scripts/fetch-templates.mjs` downloads them over HTTPS (no git) from the
   `main/default` branch of
