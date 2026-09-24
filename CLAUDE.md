@@ -98,38 +98,6 @@ generated project, where it documents _that_ app. Keep it free of anything about
 the scaffolder, the release process — and put guidance for working on the template
 here instead. `next.config.ts` sets `agentRules: false` so `next dev` never overwrites it.
 
-## Template app architecture (`templates/default/src`)
-
-Data flow of the integration:
-
-1. `app/editor/[fileName]/page.tsx` → `GET /api/editor-config?file=` → `lib/editor-config.ts`
-   builds the editor config and signs it with JWT (`lib/jwt.ts`, HS256 via `jose`).
-2. The browser loads `api.js` from `DOCUMENT_SERVER_URL` and mounts
-   `@onlyoffice/document-editor-react` in `components/Editor.tsx`.
-3. Document Server downloads the file from `/api/files/[name]/download` (URL built from
-   `APP_URL` via `lib/public-url.ts`).
-4. Document Server posts to `/api/callback?file=`; the handler verifies the JWT (body `token` or
-   the `DOCUMENT_SERVER_JWT_HEADER` header), and on status 2/6 downloads the saved file and writes
-   it atomically (`lib/storage.ts`).
-
-Key decisions worth knowing before editing:
-
-- **Formats come from the server.** `lib/formats.ts` fetches `GET <server>/meta/formats`
-  (cached, falls back to `lib/fallback-formats.json` on 404) and wraps it in the SDK's
-  `DocumentServerFormats`, whose `isEditable` / `isLossyEditable` / `isViewable` map the format's
-  `actions` to editor mode in `lib/editor-config.ts` and `lib/file-list.ts`; unknown formats cannot
-  be uploaded.
-- **Two Document Server URLs.** `DOCUMENT_SERVER_URL` is what the browser uses;
-  `DOCUMENT_SERVER_INTERNAL_URL` is what the app uses server-side (Docker networks). The callback
-  handler rewrites the download URL prefix accordingly.
-- **Document key** (`lib/document-key.ts`) is derived from name + size + mtime, so no database is
-  needed; it changes automatically after each save.
-- **Config** is read once by `lib/env.ts` (`loadEnv` / `requireEnv`); missing config surfaces as a
-  503 `EnvError` through `lib/http.ts`'s `handleRoute` wrapper, which every API route uses.
-- **Blank documents** for "New document" come from `document-templates/new/new.<type>`, resolved
-  by `lib/document-templates.ts` — one file per format, no locales, downloaded by
-  `scripts/fetch-templates.mjs` before the app starts. Only "New document" depends on them.
-
 ## Release process
 
 Version lives in `package.json` and the top entry of `CHANGELOG.md` (the `## x.y.z` heading is what
