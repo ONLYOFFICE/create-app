@@ -91,7 +91,7 @@ set `dynamic = 'force-dynamic'`.
 
 1. `app/editor/[fileName]/page.tsx` renders `components/Editor.tsx`, which fetches
    `GET /api/editor-config?file=`; `lib/editor-config.ts` builds the editor config and signs it
-   with JWT (`lib/jwt.ts`, HS256 via `jose`). The secret never reaches the browser.
+   with JWT (the SDK's `DocumentServerJwt`, HS256). The secret never reaches the browser.
 2. `@onlyoffice/document-editor-react` loads `api.js` from `DOCUMENT_SERVER_URL` and creates the
    editor iframe — that is why it is imported with `dynamic(..., { ssr: false })`.
 3. The Document Server downloads the file from `/api/files/[name]/download`

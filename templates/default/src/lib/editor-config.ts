@@ -9,12 +9,12 @@ import {
   buildDocumentKey,
   ConfigError,
   DocumentServerConfig,
+  DocumentServerJwt,
   type ConfigInput,
 } from '@onlyoffice/docs-integration-sdk';
 import { requireEnv } from './env';
 import { getDocumentServerFormats } from './formats';
 import { BadRequest } from './http';
-import { signPayload } from './jwt';
 import { isLoopbackHost, publicBaseUrl } from './public-url';
 import { extOf, safeName, statFile } from './storage';
 
@@ -93,9 +93,8 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
     );
   }
 
-  const { jwtSecret } = env;
-  const config: Config = jwtSecret
-    ? await editor.sign({ sign: (payload) => signPayload(payload, jwtSecret) })
+  const config: Config = env.jwtSecret
+    ? await editor.sign(new DocumentServerJwt({ secret: env.jwtSecret }))
     : editor.config;
 
   const warnings: string[] = [];

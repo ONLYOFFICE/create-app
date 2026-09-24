@@ -1,25 +1,16 @@
 /**
  * JWT helpers for the Document Server integration (HS256, shared secret).
  *
- * - Outgoing: the editor config sent to the browser is signed and placed in `config.token`.
  * - Incoming: requests from the Document Server (save callback, file download) carry a JWT
  *   either in the request body (`token` field) or in an HTTP header (`Authorization: Bearer …`
  *   by default) whose payload wraps the original body under `payload`.
  */
-import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
+import { jwtVerify, type JWTPayload } from 'jose';
 import type { AppEnv } from './env';
 import { Unauthorized } from './http';
 import type { CallbackBody } from './types';
 
 const encodeSecret = (secret: string) => new TextEncoder().encode(secret);
-
-export async function signPayload(payload: object, secret: string): Promise<string> {
-  return new SignJWT(payload as JWTPayload)
-    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-    .setIssuedAt()
-    .setExpirationTime('10m')
-    .sign(encodeSecret(secret));
-}
 
 export async function verifyToken<T = JWTPayload>(token: string, secret: string): Promise<T> {
   try {
