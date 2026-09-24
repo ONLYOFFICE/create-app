@@ -5,9 +5,13 @@
  * This runs on the server only: the JWT secret must never reach the browser.
  */
 import type { Config, Lang, Region } from '@onlyoffice/doceditor-types';
-import { ConfigError, DocumentServerConfig, type ConfigInput } from '@onlyoffice/docs-integration-sdk';
+import {
+  buildDocumentKey,
+  ConfigError,
+  DocumentServerConfig,
+  type ConfigInput,
+} from '@onlyoffice/docs-integration-sdk';
 import { requireEnv } from './env';
-import { documentKey } from './document-key';
 import { getDocumentServerFormats } from './formats';
 import { BadRequest } from './http';
 import { signPayload } from './jwt';
@@ -55,7 +59,7 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
   const input: ConfigInput = {
     type: 'desktop',
     document: {
-      key: documentKey(name, info.mtimeMs, info.size),
+      key: buildDocumentKey(name, Math.floor(info.mtimeMs), info.size),
       title: name,
       url: `${baseUrl}/api/files/${encodedName}/download`,
       permissions: { edit: true },

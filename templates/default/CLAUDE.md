@@ -115,10 +115,11 @@ set `dynamic = 'force-dynamic'`.
 - **Saving is atomic.** `writeFileAtomic()` writes a `*.tmp` file and renames it, so the Document
   Server can re-download a document while it is being saved; `listFiles()` therefore hides `*.tmp`
   files and dotfiles.
-- **`document.key` must change after every save.** `lib/document-key.ts` derives it from the file
-  name, size and modification time, which is what lets this demo work without a database: everyone
-  who opens the same unchanged file joins the same co-editing session. Making the key stable would
-  make the editor show a stale document after a save.
+- **`document.key` must change after every save.** `lib/editor-config.ts` derives it from the file
+  name, size and modification time with the SDK's `buildDocumentKey()`, which is what lets this
+  demo work without a database: everyone who opens the same unchanged file joins the same
+  co-editing session. Making the key stable would make the editor show a stale document after a
+  save.
 - **The list of formats comes from the Document Server**, not from a hard-coded table:
   `lib/formats.ts` fetches `GET <server>/meta/formats` (cached for 10 minutes, falls back to
   `lib/fallback-formats.json` only if the endpoint returns 404). `getDocumentServerFormats()` wraps

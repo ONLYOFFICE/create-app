@@ -87,7 +87,7 @@ this app ──(6) downloads the saved file ──────▶ Document Serve
 | Supported formats (`GET <server>/meta/formats`), edit vs. view decision | `src/lib/formats.ts` |
 | Editor config (`documentType`, `document`, `editorConfig`, `token`) | `src/lib/editor-config.ts` |
 | JWT signing and verification | `src/lib/jwt.ts` |
-| `document.key` generation | `src/lib/document-key.ts` |
+| `document.key` generation | `src/lib/editor-config.ts` (`buildDocumentKey` from the SDK) |
 | Save callback handler | `src/app/api/callback/route.ts` |
 | File download for the Document Server and the user | `src/app/api/files/[name]/download/route.ts` |
 | Upload, create from template, delete | `src/app/api/files/**` |
