@@ -25,15 +25,13 @@ export async function describeFiles(): Promise<FileListResult> {
   const items: FileListItem[] = [];
   for (const file of files) {
     const ext = extOf(file.name);
+    const permissionEdit = (formats?.isEditable(ext) || formats?.isLossyEditable(ext)) ?? false;
     const lossy = formats?.isLossyEditable(ext) ?? false;
-    let mode: FileListItem['mode'] = null;
-    if (formats?.isEditable(ext) || lossy) mode = 'edit';
-    else if (formats?.isViewable(ext)) mode = 'view';
 
     items.push({
       ...file,
       documentType: formats?.getDocumentType(ext),
-      mode,
+      permissionEdit,
       lossy,
     });
   }

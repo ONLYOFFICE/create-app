@@ -1,6 +1,4 @@
-import type { FormatType } from "@onlyoffice/docs-integration-sdk";
-
-export type EditorMode = 'edit' | 'view';
+import type { FormatType } from '@onlyoffice/docs-integration-sdk';
 
 /** Blank templates that can be created from `document-templates/new/<locale>/new.<type>`. */
 export type TemplateType = 'docx' | 'xlsx' | 'pptx' | 'pdf';
@@ -16,7 +14,7 @@ export type FileInfo = {
 /** File entry enriched with format information for the UI. */
 export type FileListItem = FileInfo & {
   documentType: FormatType | undefined;
-  mode: EditorMode | null;
+  permissionEdit: boolean;
   lossy: boolean;
 };
 

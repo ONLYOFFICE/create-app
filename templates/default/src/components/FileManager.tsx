@@ -277,7 +277,7 @@ function FileRow({
   onDelete: (name: string) => void;
 }) {
   const encoded = encodeURIComponent(file.name);
-  const canOpen = file.mode !== null;
+  const canOpen = file.documentType !== undefined;
   const editorHref = editorUrl(file.name);
 
   return (
@@ -301,18 +301,18 @@ function FileRow({
         </div>
       </td>
       <td>
-        {file.mode === 'edit' && file.lossy ? (
-          <span className="badge badge-lossy" title="The Document Server can edit this format, but some formatting may be lost on save">
-            Edit · lossy
-          </span>
-        ) : file.mode === 'edit' ? (
-          <span className="badge badge-edit">Edit</span>
-        ) : file.mode === 'view' ? (
-          <span className="badge badge-view">View only</span>
-        ) : (
+        {file.documentType === undefined ? (
           <span className="badge" title="The Document Server does not support this format">
             Unsupported
           </span>
+        ) : file.permissionEdit && file.lossy ? (
+          <span className="badge badge-lossy" title="The Document Server can edit this format, but some formatting may be lost on save">
+            Edit · lossy
+          </span>
+        ) : file.permissionEdit ? (
+          <span className="badge badge-edit">Edit</span>
+        ) : (
+          <span className="badge badge-view">View only</span>
         )}
       </td>
       <td className="muted">{formatSize(file.size)}</td>
@@ -323,7 +323,7 @@ function FileRow({
         <div className={styles.actions}>
           {canOpen ? (
             <a href={editorHref} target="_blank" rel="noopener" className="btn btn-sm">
-              {file.mode === 'edit' ? 'Edit' : 'View'}
+              {file.permissionEdit ? 'Edit' : 'View'}
             </a>
           ) : null}
           <a href={`/api/files/${encoded}/download`} className="btn btn-sm" download={file.name}>

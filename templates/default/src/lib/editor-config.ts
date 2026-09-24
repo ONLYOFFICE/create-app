@@ -55,7 +55,7 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
   const baseUrl = publicBaseUrl(request, env);
   const encodedName = encodeURIComponent(name);
   const { lang, region } = editorLocale(env.lang);
-  const canLossyEdit = formats.isLossyEditable(extension)
+  const canLossyEdit = formats.isLossyEditable(extension);
   const canEdit = formats.isEditable(extension) || canLossyEdit;
 
   const config: Config = {
@@ -69,19 +69,11 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
       url: `${baseUrl}/api/files/${encodedName}/download`,
       permissions: {
         edit: canEdit,
-        review: canEdit && formats.isReviewable(extension),
-        comment: canEdit && formats.isCommentable(extension),
-        fillForms: canEdit && formats.isFillable(extension),
-        modifyFilter: canEdit && formats.can(extension, "customfilter"),
-        download: true,
-        print: true,
-        copy: true,
       },
     },
     editorConfig: {
-      // The Document Server posts editing events and the saved document here.
-      callbackUrl: `${baseUrl}/api/callback?file=${encodedName}`,
-      mode: formats.isEditable(extension) || formats.isLossyEditable(extension) ? "edit" : "view",
+      callbackUrl: canEdit ? `${baseUrl}/api/callback?file=${encodedName}` : undefined,
+      mode: 'edit',
       lang,
       region,
       user: { id: env.user.id, name: env.user.name },
