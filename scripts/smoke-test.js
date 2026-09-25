@@ -68,7 +68,6 @@ try {
     'src/app/api/callback/route.ts',
     'src/app/api/editor-config/route.ts',
     'src/lib/editor-config.ts',
-    'src/lib/jwt.ts',
     'scripts/fetch-templates.mjs',
     'storage/.gitkeep',
     'storage/README.md',

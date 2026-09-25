@@ -95,7 +95,9 @@ set `dynamic = 'force-dynamic'`.
 2. `@onlyoffice/document-editor-react` loads `api.js` from `DOCUMENT_SERVER_URL` and creates the
    editor iframe — that is why it is imported with `dynamic(..., { ssr: false })`.
 3. The Document Server downloads the file from `/api/files/[name]/download`
-   (`document.url` in the config, base address from `lib/public-url.ts`).
+   (`document.url` in the config, base address from `lib/public-url.ts`). The SDK's
+   `DocumentServerJwt.verifyHeader()` checks the token in `DOCUMENT_SERVER_JWT_HEADER`; a request
+   without one is let through, since this demo has no user authentication.
 4. The Document Server posts events to `/api/callback?file=`. The SDK's `DocumentServerCallback`
    checks the JWT (in the body or in `DOCUMENT_SERVER_JWT_HEADER`) and tells the statuses apart. On
    status `2` (everyone closed the document) or `6` (force save) the handler downloads the saved
