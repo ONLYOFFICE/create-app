@@ -65,7 +65,7 @@ function Header({ documentServerUrl, userName }: { documentServerUrl?: string; u
 function Footer() {
   return (
     <footer className={`${styles.footer} muted`}>
-      Copyright © {new Date().getFullYear()} Ascensio System SIA. All right reserved
+      Copyright © {new Date().getFullYear()} Ascensio System SIA. All rights reserved
     </footer>
   );
 }
