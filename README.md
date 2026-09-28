@@ -1,6 +1,6 @@
 # @onlyoffice/create-app
 
-Scaffold a demo application that integrates the [ONLYOFFICE Docs](https://www.onlyoffice.com/office-suite.aspx)
+Scaffold a demo application that integrates the [ONLYOFFICE Docs](https://www.onlyoffice.com/docs)
 editors, the same way `create-next-app` scaffolds a site:
 
 ```bash

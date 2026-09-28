@@ -1,7 +1,7 @@
 # ONLYOFFICE Docs – Integration Demo
 
 A small file manager built with [Next.js](https://nextjs.org/) that shows how to integrate the
-[ONLYOFFICE Docs](https://www.onlyoffice.com/office-suite.aspx) editors into a web application:
+[ONLYOFFICE Docs](https://www.onlyoffice.com/docs) editors into a web application:
 
 - list, upload, download and delete files;
 - create blank documents, spreadsheets, presentations and PDF forms from templates;
@@ -14,7 +14,7 @@ The project was generated with [`@onlyoffice/create-app`](https://www.npmjs.com/
 
 - Node.js 20.12 or newer;
 - a running ONLYOFFICE Docs (Document Server) 8.2 or newer, for example
-  [in Docker](https://helpcenter.onlyoffice.com/installation/docs-community-install-docker.aspx):
+  [in Docker](https://helpcenter.onlyoffice.com/docs/installation/docs-community-install-docker.aspx):
 
   ```bash
   docker run -i -t -d -p 80:80 --restart=always \
@@ -117,7 +117,7 @@ derives it from the file name, size and modification time, so no database is nee
 
 ## Learn more
 
-- [ONLYOFFICE API documentation](https://api.onlyoffice.com/docs/docs-api/)
+- [ONLYOFFICE API documentation](https://api.onlyoffice.com/docs/docs-api/get-started/basic-concepts/)
 - [Editor config reference](https://api.onlyoffice.com/docs/docs-api/usage-api/config/)
 - [Callback handler](https://api.onlyoffice.com/docs/docs-api/usage-api/callback-handler/)
 - [JWT / security](https://api.onlyoffice.com/docs/docs-api/additional-api/signature/)

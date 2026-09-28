@@ -5,7 +5,7 @@ repository.
 
 ## What this project is
 
-A demo application that integrates [ONLYOFFICE Docs](https://api.onlyoffice.com/docs/docs-api/)
+A demo application that integrates [ONLYOFFICE Docs](https://api.onlyoffice.com/docs/docs-api/get-started/basic-concepts/)
 (Document Server) into a Next.js app: a small file manager that lists, uploads and creates
 documents, opens them in the ONLYOFFICE editor and saves the changes back.
 
