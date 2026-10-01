@@ -69,6 +69,7 @@ try {
     'src/app/api/editor-config/route.ts',
     'src/lib/editor-config.ts',
     'scripts/fetch-templates.mjs',
+    'vendor/onlyoffice-docs-integration-sdk-0.1.0.tgz',
     'storage/.gitkeep',
     'storage/README.md',
   ];

@@ -3,6 +3,8 @@ node_modules/
 
 # npm pack output
 *.tgz
+# ...except the sdk build the template app depends on
+!/templates/default/vendor/*.tgz
 
 # logs
 npm-debug.log*

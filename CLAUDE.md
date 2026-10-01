@@ -93,6 +93,12 @@ temporary file so an interrupted run cannot leave a file that looks finished, an
 failure — the app must still start. `build` deliberately has no hook: a build does not need the
 documents.
 
+The template depends on `@onlyoffice/docs-integration-sdk` through a tarball committed in
+`templates/default/vendor/` (`file:vendor/…tgz`), so a generated project installs without the SDK
+being published. The root `.gitignore` ignores `*.tgz` except that folder. To take a new SDK build,
+run `npm run build && npm pack` in the SDK repository, replace the tarball, and run
+`npm run template:install` — the lockfile pins its integrity.
+
 `templates/default/CLAUDE.md` is the exception: it ships with the template and is copied into the
 generated project, where it documents _that_ app. Keep it free of anything about this repository —
 the scaffolder, the release process — and put guidance for working on the template
