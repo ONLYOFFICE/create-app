@@ -59,7 +59,7 @@ export async function buildEditorSession(request: Request, fileName: string): Pr
   const input: ConfigInput = {
     type: 'desktop',
     document: {
-      key: buildDocumentKey(name, Math.floor(info.mtimeMs), info.size),
+      key: await buildDocumentKey(name, Math.floor(info.mtimeMs), info.size),
       title: name,
       url: `${baseUrl}/api/files/${encodedName}/download`,
       permissions: { edit: true },
