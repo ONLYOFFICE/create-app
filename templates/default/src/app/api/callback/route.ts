@@ -41,8 +41,9 @@ export const dynamic = 'force-dynamic';
 async function readCallback(request: Request, env: AppEnv): Promise<DocumentServerCallback> {
   try {
     return await DocumentServerCallback.fromRequest(request, {
-      verifier: env.jwtSecret ? new DocumentServerJwt({ secret: env.jwtSecret }) : null,
-      authorizationHeader: env.jwtHeader,
+      verifier: env.jwtSecret
+        ? new DocumentServerJwt({ secret: env.jwtSecret, authorizationHeader: env.jwtHeader })
+        : null,
     });
   } catch (error) {
     if (!CallbackError.is(error)) throw error;

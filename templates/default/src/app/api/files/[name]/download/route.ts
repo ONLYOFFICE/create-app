@@ -26,9 +26,10 @@ async function verifyRequest(request: Request, env: AppEnv): Promise<void> {
   if (!env.jwtSecret) return;
 
   try {
-    await new DocumentServerJwt({ secret: env.jwtSecret }).verifyHeader(request.headers, {
+    await new DocumentServerJwt({
+      secret: env.jwtSecret,
       authorizationHeader: env.jwtHeader,
-    });
+    }).verifyHeader(request.headers);
   } catch (error) {
     if (!JwtError.is(error)) throw error;
     if (error.kind !== 'missing') throw new Unauthorized(`Invalid JWT: ${error.message}`);
