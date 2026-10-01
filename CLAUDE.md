@@ -97,7 +97,10 @@ The template depends on `@onlyoffice/docs-integration-sdk` through a tarball com
 `templates/default/vendor/` (`file:vendor/…tgz`), so a generated project installs without the SDK
 being published. The root `.gitignore` ignores `*.tgz` except that folder. To take a new SDK build,
 run `npm run build && npm pack` in the SDK repository, replace the tarball, and run
-`npm run template:install` — the lockfile pins its integrity.
+`npm run template:install` — the lockfile pins its integrity. When the SDK version did not change,
+that keeps the old integrity and the old package in `node_modules`: delete
+`templates/default/node_modules/@onlyoffice/docs-integration-sdk` and run
+`npm --prefix templates/default install file:vendor/<tarball>` instead.
 
 `templates/default/CLAUDE.md` is the exception: it ships with the template and is copied into the
 generated project, where it documents _that_ app. Keep it free of anything about this repository —
